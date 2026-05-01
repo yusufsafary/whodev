@@ -2,10 +2,10 @@ import { useState, useEffect } from "react";
 
 // ─── FONTS & GLOBAL STYLES ───────────────────────────────────────────────────
 const GLOBAL_CSS = `
-@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500;600;700&family=Cairo:wght@400;600;700;900&display=swap');
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
-body { background: #000; color: #fff; -webkit-font-smoothing: antialiased; }
+body { background: #000; color: #fff; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
 input::placeholder { color: #3a3a3a; }
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-track { background: #000; }
@@ -14,8 +14,51 @@ input::placeholder { color: #3a3a3a; }
 @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
 @keyframes spin { to { transform: rotate(360deg); } }
 @keyframes ticker { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+@keyframes followPulse { 0%,100% { box-shadow: 0 0 0 0 rgba(230,48,48,0.6); } 50% { box-shadow: 0 0 0 8px rgba(230,48,48,0); } }
 .fade-in { animation: fadeIn 0.35s ease forwards; }
+.follow-btn { animation: followPulse 2s infinite; }
+
+/* ── MOBILE RESPONSIVE ── */
+@media (max-width: 768px) {
+  .hero-grid { grid-template-columns: 1fr !important; gap: 32px !important; }
+  .stats-col { flex-direction: row !important; flex-wrap: wrap !important; gap: 8px !important; }
+  .stat-card { flex: 1 !important; min-width: 140px !important; }
+  .features-grid { grid-template-columns: 1fr !important; }
+  .nav-links { display: none !important; }
+  .nav-mobile-menu { display: flex !important; }
+  .about-grid { grid-template-columns: 1fr !important; gap: 32px !important; }
+  .report-header-grid { grid-template-columns: 1fr !important; gap: 20px !important; }
+  .key-stats-grid { grid-template-columns: repeat(2, 1fr) !important; }
+  .tabs-row { overflow-x: auto !important; }
+  .cluster-row { grid-template-columns: 1fr 80px !important; }
+  .cluster-extra { display: none !important; }
+  .alert-row { grid-template-columns: 56px 1fr 80px !important; }
+  .alert-wallet { display: none !important; }
+  .token-row { grid-template-columns: 1fr 1fr !important; }
+  .token-extra { display: none !important; }
+  .page-pad { padding: 40px 16px !important; }
+  .section-pad { padding: 0 16px !important; }
+  .hero-pad { padding: 48px 16px 40px !important; }
+  .nav-pad { padding: 0 16px !important; }
+  .footer-pad { padding: 20px 16px !important; }
+  .follow-banner { padding: 20px 16px !important; flex-direction: column !important; gap: 12px !important; }
+  .follow-banner-text { text-align: center !important; }
+  .modal-pad { padding: 24px 20px !important; }
+  .modal-title { font-size: 36px !important; }
+  .modal-btns { flex-direction: column !important; }
+}
 `;
+
+// ─── MOBILE HOOK ──────────────────────────────────────────────────────────────
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth <= 768);
+  useEffect(() => {
+    const handler = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener("resize", handler);
+    return () => window.removeEventListener("resize", handler);
+  }, []);
+  return isMobile;
+}
 
 // ─── MOCK DATA ────────────────────────────────────────────────────────────────
 const MOCK_WALLET_REPORT = {
@@ -125,14 +168,14 @@ const RECENT_ALERTS = [
 ];
 
 const FEATURES = [
-  { icon: "◈", title: "Wallet Intelligence",   desc: "Deep on-chain analysis — transaction tracing, funding sources, and distribution patterns." },
-  { icon: "⚠", title: "Rugpull Detection",     desc: "Identifies stealth dumps, LP removals, sniper coordination before you lose." },
-  { icon: "◉", title: "Social Identity Link",  desc: "Connects wallets to Twitter/X identities via OSINT and behavioral matching." },
-  { icon: "⟳", title: "Username Tracker",      desc: "Full history of every username, bio, and display name change with risk scoring." },
-  { icon: "◌", title: "Wallet Fingerprint",    desc: "Reveals clusters controlled by the same entity via timing and funding paths." },
-  { icon: "▲", title: "Risk Scoring",          desc: "Dynamic scores built from combined on-chain and social signals, auto-updated." },
-  { icon: "◆", title: "Real-Time Alerts",      desc: "Instant push to Telegram and Discord when suspicious activity is detected." },
-  { icon: "⬡", title: "24/7 Autonomous Scan",  desc: "Runs continuously — scanning, correlating, alerting across all layers." },
+  { icon: "◈", titleAr: "استخبارات المحفظة",   titleEn: "Wallet Intelligence",   descAr: "تحليل عميق على السلسلة — تتبع المعاملات، مصادر التمويل، وأنماط التوزيع.", descEn: "Deep on-chain analysis — transaction tracing, funding sources, and distribution patterns." },
+  { icon: "⚠", titleAr: "كشف الاحتيال",       titleEn: "Rugpull Detection",     descAr: "يكشف عمليات البيع الخفي وسحب السيولة وتنسيق القناصة قبل خسارتك.", descEn: "Identifies stealth dumps, LP removals, sniper coordination before you lose." },
+  { icon: "◉", titleAr: "ربط الهوية الاجتماعية", titleEn: "Social Identity Link",  descAr: "يربط المحافظ بهويات تويتر/X عبر OSINT والمطابقة السلوكية.", descEn: "Connects wallets to Twitter/X identities via OSINT and behavioral matching." },
+  { icon: "⟳", titleAr: "تتبع أسماء المستخدمين", titleEn: "Username Tracker",      descAr: "السجل الكامل لكل تغيير في الاسم والسيرة الذاتية مع تقييم المخاطر.", descEn: "Full history of every username, bio, and display name change with risk scoring." },
+  { icon: "◌", titleAr: "بصمة المحفظة",       titleEn: "Wallet Fingerprint",    descAr: "يكشف المجموعات التي تسيطر عليها نفس الجهة عبر التوقيت ومسارات التمويل.", descEn: "Reveals clusters controlled by the same entity via timing and funding paths." },
+  { icon: "▲", titleAr: "تقييم المخاطر",      titleEn: "Risk Scoring",          descAr: "درجات ديناميكية مبنية على إشارات السلسلة والشبكات الاجتماعية، تُحدَّث تلقائياً.", descEn: "Dynamic scores built from combined on-chain and social signals, auto-updated." },
+  { icon: "◆", titleAr: "تنبيهات فورية",      titleEn: "Real-Time Alerts",      descAr: "إرسال فوري إلى تيليغرام وديسكورد عند اكتشاف نشاط مشبوه.", descEn: "Instant push to Telegram and Discord when suspicious activity is detected." },
+  { icon: "⬡", titleAr: "مسح مستمر 24/7",    titleEn: "24/7 Autonomous Scan",  descAr: "يعمل باستمرار — يمسح ويربط ويُنبه عبر جميع الطبقات.", descEn: "Runs continuously — scanning, correlating, alerting across all layers." },
 ];
 
 // ─── HELPERS ─────────────────────────────────────────────────────────────────
@@ -168,6 +211,7 @@ const roleColor = (r) =>
 const mono = "'Space Mono', monospace";
 const sans = "'DM Sans', sans-serif";
 const display = "'Bebas Neue', sans-serif";
+const arabic = "'Cairo', sans-serif";
 
 // ─── SHARED UI COMPONENTS ────────────────────────────────────────────────────
 
@@ -227,6 +271,56 @@ function Spinner() {
   );
 }
 
+// ─── FOLLOW BUILDER BANNER ────────────────────────────────────────────────────
+function FollowBuilderBanner() {
+  return (
+    <div className="follow-banner" style={{
+      background: `linear-gradient(135deg, #0d0d0d 0%, #1a0000 50%, #0d0d0d 100%)`,
+      border: `1px solid ${C.red}44`,
+      borderLeft: `4px solid ${C.red}`,
+      padding: "20px 40px",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "space-between",
+      gap: 20,
+    }}>
+      <div className="follow-banner-text" style={{ flex: 1 }}>
+        <div style={{ fontFamily: arabic, fontSize: 18, color: "#fff", fontWeight: 700, marginBottom: 4, direction: "rtl", textAlign: "right" }}>
+          🔔 تابع المطور لآخر التحديثات
+        </div>
+        <div style={{ fontFamily: sans, fontSize: 12, color: C.sub }}>
+          Follow the builder for the latest updates & features
+        </div>
+      </div>
+      <a
+        href="https://x.com/Khloud132"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="follow-btn"
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 10,
+          background: C.red,
+          border: "none",
+          padding: "12px 28px",
+          cursor: "pointer",
+          textDecoration: "none",
+          flexShrink: 0,
+        }}
+      >
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="#fff">
+          <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.747l7.73-8.835L1.254 2.25H8.08l4.259 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+        </svg>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
+          <span style={{ fontFamily: arabic, fontSize: 14, color: "#fff", fontWeight: 700, lineHeight: 1.2 }}>تابع @Khloud132</span>
+          <span style={{ fontFamily: mono, fontSize: 9, color: "rgba(255,255,255,0.7)", letterSpacing: 1 }}>FOLLOW BUILDER</span>
+        </div>
+      </a>
+    </div>
+  );
+}
+
 // ─── TICKER ──────────────────────────────────────────────────────────────────
 function Ticker() {
   const items = [
@@ -249,94 +343,241 @@ function Ticker() {
 
 // ─── NAV ─────────────────────────────────────────────────────────────────────
 function Nav({ page, setPage }) {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const isMobile = useIsMobile();
+
   const navItems = [
-    { label: "HOME",    key: "home"    },
-    { label: "TWITTER SCANNER", key: "twitter" },
-    { label: "ABOUT",   key: "about"   },
+    { labelAr: "الرئيسية",      labelEn: "HOME",    key: "home"    },
+    { labelAr: "فاحص تويتر",   labelEn: "TWITTER", key: "twitter" },
+    { labelAr: "حول",           labelEn: "ABOUT",   key: "about"   },
   ];
+
   return (
-    <nav style={{
-      background: "rgba(0,0,0,0.95)", backdropFilter: "blur(12px)",
-      borderBottom: `1px solid ${C.border}`, padding: "0 40px",
-      display: "flex", alignItems: "center", justifyContent: "space-between",
-      height: 56, position: "sticky", top: 0, zIndex: 100,
-    }}>
-      <button onClick={() => setPage("home")} style={{ background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 6 }}>
-        <span style={{ fontFamily: display, fontSize: 24, color: "#fff", letterSpacing: 2 }}>WHO</span>
-        <span style={{ fontFamily: display, fontSize: 24, color: C.red,  letterSpacing: 2, marginTop: 3 }}>DEV</span>
-      </button>
-      <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
-        {navItems.map(item => (
-          <button key={item.key} onClick={() => setPage(item.key)} style={{
-            background: page === item.key ? C.bg3 : "none",
-            border: page === item.key ? `1px solid ${C.border}` : "1px solid transparent",
-            fontFamily: mono, fontSize: 10, color: page === item.key ? "#fff" : C.dim,
-            cursor: "pointer", padding: "6px 14px", letterSpacing: 1.5, transition: "all 0.15s",
-          }}>{item.label}</button>
-        ))}
-        <button onClick={() => setPage("search")} style={{
-          background: C.red, border: "none", fontFamily: mono, fontSize: 10,
-          color: "#fff", cursor: "pointer", padding: "8px 20px", letterSpacing: 1.5, fontWeight: 700,
-          marginLeft: 8, transition: "opacity 0.15s",
+    <>
+      <nav style={{
+        background: "rgba(0,0,0,0.95)", backdropFilter: "blur(12px)",
+        borderBottom: `1px solid ${C.border}`,
+        height: 56, position: "sticky", top: 0, zIndex: 100,
+      }}>
+        <div className="nav-pad" style={{
+          padding: "0 40px", display: "flex", alignItems: "center",
+          justifyContent: "space-between", height: "100%",
         }}>
-          SCAN WALLET →
-        </button>
-      </div>
-    </nav>
+          <button onClick={() => setPage("home")} style={{ background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 6 }}>
+            <span style={{ fontFamily: display, fontSize: 24, color: "#fff", letterSpacing: 2 }}>WHO</span>
+            <span style={{ fontFamily: display, fontSize: 24, color: C.red,  letterSpacing: 2, marginTop: 3 }}>DEV</span>
+          </button>
+
+          {/* Desktop Nav */}
+          <div className="nav-links" style={{ display: "flex", gap: 4, alignItems: "center" }}>
+            {navItems.map(item => (
+              <button key={item.key} onClick={() => setPage(item.key)} style={{
+                background: page === item.key ? C.bg3 : "none",
+                border: page === item.key ? `1px solid ${C.border}` : "1px solid transparent",
+                fontFamily: mono, fontSize: 10, color: page === item.key ? "#fff" : C.dim,
+                cursor: "pointer", padding: "6px 14px", letterSpacing: 1.5, transition: "all 0.15s",
+              }}>{item.labelEn}</button>
+            ))}
+            <a
+              href="https://x.com/Khloud132"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="follow-btn"
+              style={{
+                display: "flex", alignItems: "center", gap: 6,
+                background: "transparent", border: `1px solid ${C.red}`,
+                fontFamily: arabic, fontSize: 12, color: C.red,
+                cursor: "pointer", padding: "6px 14px", letterSpacing: 0.5,
+                marginLeft: 4, textDecoration: "none", fontWeight: 700,
+              }}
+            >
+              <svg width="12" height="12" viewBox="0 0 24 24" fill={C.red}>
+                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.747l7.73-8.835L1.254 2.25H8.08l4.259 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+              </svg>
+              تابع المطور
+            </a>
+            <button onClick={() => setPage("search")} style={{
+              background: C.red, border: "none", fontFamily: mono, fontSize: 10,
+              color: "#fff", cursor: "pointer", padding: "8px 20px", letterSpacing: 1.5, fontWeight: 700,
+              marginLeft: 8, transition: "opacity 0.15s",
+            }}>
+              SCAN →
+            </button>
+          </div>
+
+          {/* Mobile Hamburger */}
+          <div className="nav-mobile-menu" style={{ display: "none", alignItems: "center", gap: 8 }}>
+            <a
+              href="https://x.com/Khloud132"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="follow-btn"
+              style={{
+                display: "flex", alignItems: "center", gap: 6,
+                background: C.red, border: "none",
+                padding: "6px 12px", textDecoration: "none",
+                fontFamily: arabic, fontSize: 11, color: "#fff", fontWeight: 700,
+              }}
+            >
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="#fff">
+                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.747l7.73-8.835L1.254 2.25H8.08l4.259 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+              </svg>
+              تابع
+            </a>
+            <button
+              onClick={() => setMobileMenuOpen(o => !o)}
+              style={{ background: "none", border: `1px solid ${C.border}`, color: "#fff", cursor: "pointer", padding: "6px 10px", fontFamily: mono, fontSize: 14 }}
+            >
+              {mobileMenuOpen ? "✕" : "☰"}
+            </button>
+          </div>
+        </div>
+
+        {/* Mobile dropdown */}
+        {mobileMenuOpen && (
+          <div style={{ background: C.bg1, borderBottom: `1px solid ${C.border}`, padding: "8px 16px" }}>
+            {navItems.map(item => (
+              <button key={item.key} onClick={() => { setPage(item.key); setMobileMenuOpen(false); }} style={{
+                display: "block", width: "100%", textAlign: "right",
+                background: "none", border: "none", fontFamily: arabic,
+                fontSize: 14, color: page === item.key ? "#fff" : C.sub,
+                cursor: "pointer", padding: "10px 0",
+                borderBottom: `1px solid ${C.border}`,
+                direction: "rtl",
+              }}>
+                {item.labelAr} <span style={{ fontFamily: mono, fontSize: 9, color: C.muted }}>/ {item.labelEn}</span>
+              </button>
+            ))}
+            <button onClick={() => { setPage("search"); setMobileMenuOpen(false); }} style={{
+              display: "block", width: "100%", textAlign: "center",
+              background: C.red, border: "none", fontFamily: arabic,
+              fontSize: 14, color: "#fff", fontWeight: 700,
+              cursor: "pointer", padding: "12px 0", marginTop: 8,
+            }}>
+              افحص محفظة / SCAN WALLET
+            </button>
+          </div>
+        )}
+      </nav>
+    </>
   );
 }
 
 // ─── ONBOARDING MODAL ────────────────────────────────────────────────────────
 function OnboardingModal({ onClose }) {
   const steps = [
-    { icon: "◈", title: "Paste a wallet or handle", desc: "Input any Solana wallet address or Twitter/X username to begin deep intelligence scan." },
-    { icon: "⟳", title: "We trace the full identity", desc: "WHODEV cross-references on-chain transactions, token launches, and social identity history in real-time." },
-    { icon: "▲", title: "Get a risk report", desc: "Receive a structured report with a risk score, flagged behaviours, and linked wallet clusters." },
-    { icon: "◉", title: "Twitter Scanner", desc: "New: Track every username, bio, and display name change to spot reputation-masking before it's too late." },
+    {
+      icon: "◈",
+      titleAr: "الصق محفظة أو حساباً",
+      titleEn: "Paste a wallet or handle",
+      descAr: "أدخل أي عنوان محفظة سولانا أو اسم مستخدم تويتر/X لبدء المسح.",
+      descEn: "Input any Solana wallet address or Twitter/X username to begin deep intelligence scan.",
+    },
+    {
+      icon: "⟳",
+      titleAr: "نتتبع الهوية كاملة",
+      titleEn: "We trace the full identity",
+      descAr: "WHODEV يربط المعاملات على السلسلة وإطلاقات التوكن وسجل الهوية الاجتماعية في الوقت الفعلي.",
+      descEn: "WHODEV cross-references on-chain transactions, token launches, and social identity history in real-time.",
+    },
+    {
+      icon: "▲",
+      titleAr: "احصل على تقرير المخاطر",
+      titleEn: "Get a risk report",
+      descAr: "تقرير منظم بدرجة المخاطر والسلوكيات المُبلَّغ عنها ومجموعات المحافظ المرتبطة.",
+      descEn: "Receive a structured report with a risk score, flagged behaviours, and linked wallet clusters.",
+    },
+    {
+      icon: "◉",
+      titleAr: "فاحص تويتر",
+      titleEn: "Twitter Scanner",
+      descAr: "جديد: تتبع كل تغيير في الاسم والسيرة الذاتية لاكتشاف محاولات إخفاء السمعة مبكراً.",
+      descEn: "New: Track every username, bio, and display name change to spot reputation-masking.",
+    },
   ];
+
   return (
     <div style={{
-      position: "fixed", inset: 0, background: "rgba(0,0,0,0.88)", backdropFilter: "blur(8px)",
-      zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", padding: 24,
+      position: "fixed", inset: 0, background: "rgba(0,0,0,0.92)", backdropFilter: "blur(8px)",
+      zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", padding: 16,
     }}>
-      <div className="fade-in" style={{
-        background: C.bg1, border: `1px solid ${C.border}`, maxWidth: 560, width: "100%", padding: "40px",
+      <div className="fade-in modal-pad" style={{
+        background: C.bg1, border: `1px solid ${C.border}`, maxWidth: 580, width: "100%", padding: "40px",
+        maxHeight: "90vh", overflowY: "auto",
       }}>
-        <div style={{ marginBottom: 32 }}>
-          <SectionLabel>WELCOME TO WHODEV</SectionLabel>
-          <h2 style={{ fontFamily: display, fontSize: 48, color: "#fff", lineHeight: 1, marginBottom: 12, letterSpacing: -1 }}>
-            SOLANA INTELLIGENCE<br /><span style={{ color: C.red }}>PLATFORM</span>
+        {/* Header */}
+        <div style={{ marginBottom: 24, direction: "rtl", textAlign: "right" }}>
+          <div style={{ fontFamily: mono, fontSize: 10, color: C.red, letterSpacing: 3, marginBottom: 8 }}>
+            ◈ مرحباً بك في WHODEV
+          </div>
+          <h2 className="modal-title" style={{
+            fontFamily: arabic, fontSize: 40, color: "#fff", lineHeight: 1.2,
+            marginBottom: 8, fontWeight: 900,
+          }}>
+            منصة استخبارات<br /><span style={{ color: C.red }}>سولانا</span>
           </h2>
-          <p style={{ fontFamily: sans, fontSize: 14, color: C.sub, lineHeight: 1.7 }}>
-            WHODEV is an on-chain and social intelligence tool built to unmask anonymous Solana developers, 
-            detect rugpull patterns, and track identity changes — before you invest.
+          <p style={{ fontFamily: mono, fontSize: 10, color: C.muted, letterSpacing: 1, marginBottom: 12, direction: "ltr", textAlign: "left" }}>
+            SOLANA INTELLIGENCE PLATFORM
+          </p>
+          <p style={{ fontFamily: arabic, fontSize: 14, color: C.sub, lineHeight: 1.9 }}>
+            WHODEV هي أداة استخباراتية متقدمة لكشف هويات مطوري سولانا المجهولين،
+            واكتشاف أنماط الاحتيال، وتتبع تغييرات الهوية — قبل أن تستثمر أموالك.
+          </p>
+          <p style={{ fontFamily: sans, fontSize: 12, color: C.muted, lineHeight: 1.7, marginTop: 6 }}>
+            WHODEV unmasks anonymous Solana developers, detects rugpull patterns, and tracks identity changes — before you invest.
           </p>
         </div>
 
-        <div style={{ display: "flex", flexDirection: "column", gap: 1, marginBottom: 32 }}>
+        {/* Steps */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 2, marginBottom: 24 }}>
           {steps.map((s, i) => (
             <div key={i} style={{
-              display: "flex", gap: 16, alignItems: "flex-start",
-              background: C.bg2, padding: "16px 20px", borderLeft: `3px solid ${C.border}`,
-              transition: "border-color 0.2s",
+              display: "flex", gap: 14, alignItems: "flex-start",
+              background: C.bg2, padding: "14px 16px", borderRight: `3px solid ${C.border}`,
+              direction: "rtl", transition: "border-color 0.2s",
             }}
               onMouseEnter={e => e.currentTarget.style.borderColor = C.red}
               onMouseLeave={e => e.currentTarget.style.borderColor = C.border}
             >
-              <div style={{ fontFamily: display, fontSize: 24, color: C.red, minWidth: 24, marginTop: 2 }}>{s.icon}</div>
-              <div>
-                <div style={{ fontFamily: mono, fontSize: 11, color: "#fff", letterSpacing: 1, marginBottom: 4, fontWeight: 700 }}>{s.title}</div>
-                <div style={{ fontFamily: sans, fontSize: 13, color: C.sub, lineHeight: 1.6 }}>{s.desc}</div>
+              <div style={{ fontFamily: display, fontSize: 22, color: C.red, minWidth: 22, marginTop: 2 }}>{s.icon}</div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontFamily: arabic, fontSize: 13, color: "#fff", marginBottom: 3, fontWeight: 700 }}>{s.titleAr}</div>
+                <div style={{ fontFamily: arabic, fontSize: 12, color: C.sub, lineHeight: 1.7 }}>{s.descAr}</div>
+                <div style={{ fontFamily: sans, fontSize: 11, color: C.muted, marginTop: 4, direction: "ltr", textAlign: "left", lineHeight: 1.5 }}>{s.descEn}</div>
               </div>
             </div>
           ))}
         </div>
 
-        <div style={{ display: "flex", gap: 12 }}>
+        {/* Follow Builder prompt */}
+        <a
+          href="https://x.com/Khloud132"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            display: "flex", alignItems: "center", justifyContent: "space-between",
+            background: "#0d0d0d", border: `1px solid ${C.red}66`,
+            padding: "12px 16px", marginBottom: 16, textDecoration: "none", gap: 12,
+          }}
+        >
+          <div style={{ direction: "rtl", textAlign: "right" }}>
+            <div style={{ fontFamily: arabic, fontSize: 13, color: "#fff", fontWeight: 700 }}>🔔 تابع المطور لآخر التحديثات</div>
+            <div style={{ fontFamily: sans, fontSize: 11, color: C.muted }}>Follow @Khloud132 on X for updates</div>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, background: C.red, padding: "8px 14px", flexShrink: 0 }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="#fff">
+              <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.747l7.73-8.835L1.254 2.25H8.08l4.259 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+            </svg>
+            <span style={{ fontFamily: arabic, fontSize: 13, color: "#fff", fontWeight: 700 }}>تابع</span>
+          </div>
+        </a>
+
+        {/* Actions */}
+        <div className="modal-btns" style={{ display: "flex", gap: 10 }}>
           <button onClick={onClose} style={{
-            flex: 1, background: C.red, border: "none", fontFamily: display, fontSize: 20,
-            color: "#fff", cursor: "pointer", padding: "14px 24px", letterSpacing: 2,
-          }}>START SCANNING</button>
+            flex: 1, background: C.red, border: "none", fontFamily: arabic, fontSize: 18,
+            color: "#fff", cursor: "pointer", padding: "14px 24px", fontWeight: 700,
+          }}>ابدأ المسح الآن</button>
           <button onClick={onClose} style={{
             background: "none", border: `1px solid ${C.border}`, fontFamily: mono, fontSize: 10,
             color: C.dim, cursor: "pointer", padding: "14px 20px", letterSpacing: 1,
@@ -373,67 +614,82 @@ function Landing({ setPage }) {
     <div style={{ background: C.bg }}>
 
       {/* HERO */}
-      <div style={{ padding: "80px 40px 60px", maxWidth: 1140, margin: "0 auto" }}>
+      <div className="hero-pad" style={{ padding: "80px 40px 60px", maxWidth: 1140, margin: "0 auto" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 20 }}>
           <div style={{ width: 7, height: 7, background: C.red, borderRadius: "50%", boxShadow: `0 0 10px ${C.red}`, animation: "pulse 1.2s infinite" }} />
           <span style={{ fontFamily: mono, fontSize: 10, color: C.red, letterSpacing: 3 }}>LIVE MONITORING ACTIVE</span>
+          <span style={{ fontFamily: arabic, fontSize: 11, color: C.muted }}>· المراقبة المباشرة نشطة</span>
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 400px", gap: 60, alignItems: "center" }}>
+        <div className="hero-grid" style={{ display: "grid", gridTemplateColumns: "1fr 380px", gap: 60, alignItems: "center" }}>
           <div>
-            <h1 style={{ fontFamily: display, fontSize: "clamp(72px, 10vw, 140px)", color: "#fff", lineHeight: 0.92, margin: "0 0 28px", letterSpacing: -2 }}>
+            <div style={{ direction: "rtl", textAlign: "right", marginBottom: 16 }}>
+              <div style={{ fontFamily: arabic, fontSize: 13, color: C.muted, marginBottom: 4 }}>من هذا المطور؟</div>
+            </div>
+            <h1 style={{ fontFamily: display, fontSize: "clamp(64px, 10vw, 140px)", color: "#fff", lineHeight: 0.92, margin: "0 0 16px", letterSpacing: -2 }}>
               WHO IS<br />
               <span style={{ color: C.red, WebkitTextStroke: "2px " + C.red, WebkitTextFillColor: "transparent" }}>THIS</span><br />
               DEV?
             </h1>
-            <p style={{ fontFamily: sans, fontSize: 17, color: C.sub, lineHeight: 1.7, margin: "0 0 32px", maxWidth: 480 }}>
-              The most advanced on-chain intelligence platform for Solana. Expose rugs before they happen. 
-              Unmask anonymous developers. Track identity changes in real-time.
+            <p style={{ fontFamily: arabic, fontSize: 15, color: "#fff", lineHeight: 1.8, margin: "0 0 4px", direction: "rtl", textAlign: "right" }}>
+              أقوى منصة استخباراتية على السلسلة لشبكة سولانا.
+              اكشف الاحتيال قبل حدوثه. افضح المطورين المجهولين. تتبع تغييرات الهوية فوراً.
             </p>
-            <div style={{ display: "flex", gap: 12 }}>
+            <p style={{ fontFamily: sans, fontSize: 14, color: C.sub, lineHeight: 1.6, margin: "0 0 28px" }}>
+              The most advanced on-chain intelligence platform for Solana. Expose rugs before they happen.
+            </p>
+            <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
               <button onClick={() => setPage("search")} style={{
-                background: C.red, border: "none", fontFamily: display, fontSize: 20,
-                color: "#fff", cursor: "pointer", padding: "14px 32px", letterSpacing: 2,
-              }}>SCAN A WALLET</button>
+                background: C.red, border: "none", fontFamily: arabic, fontSize: 16,
+                color: "#fff", cursor: "pointer", padding: "14px 28px", fontWeight: 700,
+              }}>افحص محفظة</button>
               <button onClick={() => setPage("twitter")} style={{
-                background: "none", border: `1px solid ${C.border}`, fontFamily: display, fontSize: 20,
-                color: C.dim, cursor: "pointer", padding: "14px 32px", letterSpacing: 2,
+                background: "none", border: `1px solid ${C.border}`, fontFamily: display, fontSize: 18,
+                color: C.dim, cursor: "pointer", padding: "14px 28px", letterSpacing: 1,
               }}>TWITTER SCANNER</button>
             </div>
           </div>
 
-          <div style={{ display: "flex", flexDirection: "column", gap: 1 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
             {[
-              { val: stats.wallets.toLocaleString(), label: "WALLETS TRACKED",   color: C.red    },
-              { val: stats.rugs.toLocaleString(),    label: "RUGS DETECTED",     color: C.orange },
-              { val: `$${stats.volume}M+`,           label: "CAPITAL PROTECTED", color: C.green  },
+              { val: stats.wallets.toLocaleString(), labelAr: "محافظ مُتتبَّعة",   labelEn: "WALLETS TRACKED",   color: C.red    },
+              { val: stats.rugs.toLocaleString(),    labelAr: "عمليات احتيال",     labelEn: "RUGS DETECTED",     color: C.orange },
+              { val: `$${stats.volume}M+`,           labelAr: "رأس مال محمي",       labelEn: "CAPITAL PROTECTED", color: C.green  },
             ].map(s => (
-              <div key={s.label} style={{ background: C.bg1, border: `1px solid ${C.border}`, padding: "20px 24px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                <div style={{ fontFamily: mono, fontSize: 9, color: C.muted, letterSpacing: 2 }}>{s.label}</div>
-                <div style={{ fontFamily: display, fontSize: 34, color: s.color }}>{s.val}</div>
+              <div key={s.labelEn} className="stat-card" style={{ background: C.bg1, border: `1px solid ${C.border}`, padding: "16px 20px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                <div>
+                  <div style={{ fontFamily: arabic, fontSize: 12, color: "#fff", direction: "rtl", fontWeight: 600 }}>{s.labelAr}</div>
+                  <div style={{ fontFamily: mono, fontSize: 9, color: C.muted, letterSpacing: 1 }}>{s.labelEn}</div>
+                </div>
+                <div style={{ fontFamily: display, fontSize: 32, color: s.color }}>{s.val}</div>
               </div>
             ))}
           </div>
         </div>
       </div>
 
+      {/* FOLLOW BUILDER BANNER */}
+      <div className="section-pad" style={{ padding: "0 40px", maxWidth: 1140, margin: "0 auto 0" }}>
+        <FollowBuilderBanner />
+      </div>
+
       {/* LIVE ALERTS */}
-      <div style={{ borderTop: `1px solid ${C.border}`, borderBottom: `1px solid ${C.border}`, padding: "0 40px" }}>
+      <div style={{ borderTop: `1px solid ${C.border}`, borderBottom: `1px solid ${C.border}`, padding: "0 40px", marginTop: 24 }}>
         <div style={{ maxWidth: 1140, margin: "0 auto" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 0 }}>
             <div style={{ fontFamily: mono, fontSize: 9, color: C.red, letterSpacing: 3, padding: "14px 16px 14px 0", borderRight: `1px solid ${C.border}`, whiteSpace: "nowrap", marginRight: 20 }}>
               LIVE ALERTS
             </div>
-            <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
+            <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
               {RECENT_ALERTS.map((alert, i) => (
-                <div key={i} style={{
+                <div key={i} className="alert-row" style={{
                   display: "grid", gridTemplateColumns: "56px 120px 1fr 80px",
-                  alignItems: "center", gap: 16, padding: "10px 0",
+                  alignItems: "center", gap: 12, padding: "10px 0",
                   borderTop: i > 0 ? `1px solid ${C.bg2}` : "none",
                 }}>
                   <span style={{ fontFamily: mono, fontSize: 9, color: C.muted }}>{alert.time}</span>
-                  <span style={{ fontFamily: mono, fontSize: 10, color: "#fff" }}>{alert.wallet}</span>
-                  <span style={{ fontFamily: sans, fontSize: 13, color: C.sub }}>{alert.event}</span>
+                  <span className="alert-wallet" style={{ fontFamily: mono, fontSize: 10, color: "#fff" }}>{alert.wallet}</span>
+                  <span style={{ fontFamily: sans, fontSize: 12, color: C.sub, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{alert.event}</span>
                   <div style={{ display: "flex", justifyContent: "flex-end" }}>
                     <Badge label={alert.level}
                       color={alert.level === "CRITICAL" ? C.red : alert.level === "HIGH" ? C.orange : C.yellow}
@@ -447,194 +703,180 @@ function Landing({ setPage }) {
       </div>
 
       {/* FEATURES GRID */}
-      <div style={{ padding: "80px 40px", maxWidth: 1140, margin: "0 auto" }}>
-        <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", marginBottom: 40 }}>
-          <div>
-            <SectionLabel>INTELLIGENCE SUITE</SectionLabel>
-            <h2 style={{ fontFamily: display, fontSize: 56, color: "#fff", letterSpacing: -1, lineHeight: 1 }}>8 AGENT SKILLS</h2>
-          </div>
-          <button onClick={() => setPage("about")} style={{
-            background: "none", border: `1px solid ${C.border}`, fontFamily: mono, fontSize: 10,
-            color: C.dim, cursor: "pointer", padding: "10px 18px", letterSpacing: 1, marginBottom: 4,
-          }}>VIEW PROJECT DOCS →</button>
+      <div className="page-pad" style={{ padding: "80px 40px", maxWidth: 1140, margin: "0 auto" }}>
+        <SectionLabel>PLATFORM FEATURES</SectionLabel>
+        <div style={{ direction: "rtl", textAlign: "right", marginBottom: 32 }}>
+          <h2 style={{ fontFamily: arabic, fontSize: 28, color: "#fff", fontWeight: 900, marginBottom: 6 }}>ميزات المنصة</h2>
+          <p style={{ fontFamily: arabic, fontSize: 14, color: C.sub }}>أدوات متكاملة لحماية استثماراتك في عالم سولانا</p>
         </div>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 1, background: C.border }}>
+        <div className="features-grid" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 1, background: C.border }}>
           {FEATURES.map((f, i) => (
             <div key={i}
+              style={{
+                background: hoveredFeature === i ? C.bg2 : C.bg,
+                padding: "24px 20px", cursor: "default",
+                borderBottom: hoveredFeature === i ? `2px solid ${C.red}` : "2px solid transparent",
+                transition: "all 0.2s",
+              }}
               onMouseEnter={() => setHoveredFeature(i)}
               onMouseLeave={() => setHoveredFeature(null)}
-              style={{
-                background: hoveredFeature === i ? C.bg2 : C.bg1,
-                padding: "24px 20px", cursor: "default", transition: "background 0.2s",
-                borderLeft: hoveredFeature === i ? `2px solid ${C.red}` : "2px solid transparent",
-              }}>
-              <div style={{ fontFamily: display, fontSize: 26, color: hoveredFeature === i ? C.red : C.bg3, marginBottom: 14, transition: "color 0.2s" }}>{f.icon}</div>
-              <div style={{ fontFamily: mono, fontSize: 10, color: "#fff", letterSpacing: 1, marginBottom: 8, fontWeight: 700 }}>{f.title.toUpperCase()}</div>
-              <div style={{ fontFamily: sans, fontSize: 12, color: C.muted, lineHeight: 1.65 }}>{f.desc}</div>
+            >
+              <div style={{ fontFamily: display, fontSize: 28, color: C.red, marginBottom: 12 }}>{f.icon}</div>
+              <div style={{ fontFamily: arabic, fontSize: 13, color: "#fff", marginBottom: 3, fontWeight: 700, direction: "rtl", textAlign: "right" }}>{f.titleAr}</div>
+              <div style={{ fontFamily: mono, fontSize: 9, color: C.muted, letterSpacing: 1, marginBottom: 8 }}>{f.titleEn}</div>
+              <div style={{ fontFamily: arabic, fontSize: 12, color: C.sub, lineHeight: 1.7, direction: "rtl", textAlign: "right" }}>{f.descAr}</div>
             </div>
           ))}
         </div>
       </div>
 
-      {/* HOW IT WORKS */}
-      <div style={{ borderTop: `1px solid ${C.border}`, padding: "80px 40px", background: C.bg1 }}>
-        <div style={{ maxWidth: 1140, margin: "0 auto" }}>
-          <SectionLabel>WORKFLOW</SectionLabel>
-          <h2 style={{ fontFamily: display, fontSize: 56, color: "#fff", margin: "0 0 48px", letterSpacing: -1 }}>HOW IT WORKS</h2>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 1, background: C.border }}>
-            {[
-              { step: "01", title: "INPUT",     desc: "Paste a wallet address or Twitter/X handle to begin analysis." },
-              { step: "02", title: "SCAN",      desc: "WHODEV queries on-chain data and social layers simultaneously." },
-              { step: "03", title: "CORRELATE", desc: "AI engine links wallets, identities, and behavioral patterns." },
-              { step: "04", title: "REPORT",    desc: "Get a full risk report — score, flags, cluster map, and social trail." },
-            ].map((s, i) => (
-              <div key={i} style={{ background: C.bg, padding: "32px 28px" }}>
-                <div style={{ fontFamily: display, fontSize: 64, color: C.bg3, lineHeight: 1, marginBottom: 12 }}>{s.step}</div>
-                <div style={{ fontFamily: mono, fontSize: 12, color: "#fff", letterSpacing: 1, marginBottom: 10, fontWeight: 700 }}>{s.title}</div>
-                <div style={{ fontFamily: sans, fontSize: 13, color: C.muted, lineHeight: 1.7 }}>{s.desc}</div>
-              </div>
-            ))}
+      {/* ABOUT SITE ONBOARDING SECTION */}
+      <div style={{ background: C.bg1, borderTop: `1px solid ${C.border}`, borderBottom: `1px solid ${C.border}` }}>
+        <div className="page-pad" style={{ padding: "60px 40px", maxWidth: 1140, margin: "0 auto" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 48 }} className="hero-grid">
+            {/* Arabic */}
+            <div style={{ direction: "rtl", textAlign: "right" }}>
+              <SectionLabel>◈ عن المنصة</SectionLabel>
+              <h3 style={{ fontFamily: arabic, fontSize: 24, color: "#fff", fontWeight: 900, marginBottom: 16, lineHeight: 1.4 }}>
+                ما هو <span style={{ color: C.red }}>WHODEV</span>؟
+              </h3>
+              <p style={{ fontFamily: arabic, fontSize: 14, color: C.sub, lineHeight: 2, marginBottom: 16 }}>
+                WHODEV منصة استخباراتية مفتوحة مبنية لنظام سولانا. هدفنا هو منح المستثمرين الأفراد 
+                نفس الرؤية على السلسلة التي يستخدمها المحترفون والمتداولون الخبراء.
+              </p>
+              <p style={{ fontFamily: arabic, fontSize: 14, color: C.sub, lineHeight: 2 }}>
+                نجمع البيانات من بلوكتشين سولانا وواجهات برمجية متعددة لبناء ملفات مخاطر شاملة 
+                للمطورين المجهولين. كل مسح ينتج تقرير مخاطر منظم بدرجة مُحددة وسلوكيات مُبلَّغ عنها 
+                وخريطة لمجموعات المحافظ المرتبطة.
+              </p>
+            </div>
+            {/* English */}
+            <div>
+              <SectionLabel>◈ ABOUT THE PLATFORM</SectionLabel>
+              <h3 style={{ fontFamily: display, fontSize: 28, color: "#fff", letterSpacing: -0.5, marginBottom: 16 }}>
+                WHAT IS <span style={{ color: C.red }}>WHODEV</span>?
+              </h3>
+              <p style={{ fontFamily: sans, fontSize: 14, color: C.sub, lineHeight: 1.8, marginBottom: 16 }}>
+                WHODEV is an open intelligence platform built for the Solana ecosystem. Our goal is to give retail
+                investors the same on-chain visibility that sophisticated funds and experienced traders use internally.
+              </p>
+              <p style={{ fontFamily: sans, fontSize: 14, color: C.sub, lineHeight: 1.8 }}>
+                Every scan produces a structured Risk Report with a quantified score, flagged behaviors,
+                and a cluster map of linked wallets. The platform is fully automated — risk scores update
+                continuously as new on-chain activity and social changes are detected.
+              </p>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* CTA */}
-      <div style={{ background: C.red, padding: "80px 40px", textAlign: "center" }}>
-        <SectionLabel>GET STARTED NOW</SectionLabel>
-        <h2 style={{ fontFamily: display, fontSize: "clamp(44px, 7vw, 88px)", color: "#000", margin: "0 0 16px", letterSpacing: -1, lineHeight: 1 }}>
-          KNOW WHO YOU'RE<br />DEALING WITH
-        </h2>
-        <p style={{ fontFamily: sans, fontSize: 15, color: "#6b0000", margin: "0 0 36px" }}>
-          Scan any Solana wallet or developer in seconds. No login required.
-        </p>
-        <div style={{ display: "flex", gap: 12, justifyContent: "center" }}>
-          <button onClick={() => setPage("search")} style={{
-            background: "#000", border: "none", fontFamily: display, fontSize: 22,
-            color: "#fff", cursor: "pointer", padding: "14px 44px", letterSpacing: 2,
-          }}>SCAN WALLET →</button>
-          <button onClick={() => setPage("twitter")} style={{
-            background: "none", border: "2px solid #000", fontFamily: display, fontSize: 22,
-            color: "#000", cursor: "pointer", padding: "14px 44px", letterSpacing: 2,
-          }}>TWITTER SCANNER →</button>
+      {/* BOTTOM FOLLOW BUILDER CTA */}
+      <div className="page-pad" style={{ padding: "60px 40px", maxWidth: 1140, margin: "0 auto", textAlign: "center" }}>
+        <div style={{ direction: "rtl", textAlign: "center", marginBottom: 20 }}>
+          <div style={{ fontFamily: arabic, fontSize: 22, color: "#fff", fontWeight: 900, marginBottom: 8 }}>
+            ابقَ على اطلاع دائم بآخر التحديثات
+          </div>
+          <div style={{ fontFamily: sans, fontSize: 14, color: C.sub, marginBottom: 4 }}>
+            Stay updated on new features & improvements
+          </div>
         </div>
+        <a
+          href="https://x.com/Khloud132"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="follow-btn"
+          style={{
+            display: "inline-flex", alignItems: "center", gap: 12,
+            background: C.red, padding: "16px 40px",
+            textDecoration: "none", margin: "0 auto",
+          }}
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff">
+            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.747l7.73-8.835L1.254 2.25H8.08l4.259 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+          </svg>
+          <div style={{ textAlign: "right" }}>
+            <div style={{ fontFamily: arabic, fontSize: 16, color: "#fff", fontWeight: 700, direction: "rtl" }}>تابع @Khloud132</div>
+            <div style={{ fontFamily: mono, fontSize: 9, color: "rgba(255,255,255,0.7)", letterSpacing: 1 }}>FOLLOW THE BUILDER ON X</div>
+          </div>
+        </a>
       </div>
 
-      <footer style={{ background: C.bg, borderTop: `1px solid ${C.border}`, padding: "20px 40px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <span style={{ fontFamily: display, fontSize: 16, color: C.bg3, letterSpacing: 2 }}>WHODEV.XY</span>
-        <span style={{ fontFamily: mono, fontSize: 9, color: C.muted }}>© 2025 WHODEV — Solana Intelligence Platform</span>
-      </footer>
     </div>
   );
 }
 
-// ─── WALLET SEARCH PAGE ───────────────────────────────────────────────────────
+// ─── SEARCH PAGE ──────────────────────────────────────────────────────────────
 function SearchPage({ setPage, setReport }) {
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(false);
-  const [step, setStep] = useState("");
+  const [error, setError] = useState("");
 
-  const steps = [
-    "Connecting to Solana RPC...",
-    "Fetching transaction history...",
-    "Scanning token launch activity...",
-    "Correlating social identities...",
-    "Running multi-wallet fingerprint...",
-    "Computing risk score...",
-    "Building report...",
-  ];
-
-  const scan = () => {
-    if (!query.trim()) return;
+  const handleScan = () => {
+    if (!query.trim()) { setError("Please enter a wallet address or Twitter handle."); return; }
     setLoading(true);
-    let i = 0;
-    const tick = () => {
-      setStep(steps[i]);
-      i++;
-      if (i < steps.length) setTimeout(tick, 420);
-      else setTimeout(() => { setReport(MOCK_WALLET_REPORT); setPage("report"); }, 500);
-    };
-    tick();
+    setError("");
+    setTimeout(() => {
+      setLoading(false);
+      setReport(MOCK_WALLET_REPORT);
+      setPage("report");
+    }, 2200);
   };
 
   return (
-    <div style={{ background: C.bg, minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "40px 24px" }}>
-      <div style={{ width: "100%", maxWidth: 600 }} className="fade-in">
-        <SectionLabel style={{ textAlign: "center" }}>WALLET INTELLIGENCE</SectionLabel>
-        <h1 style={{ fontFamily: display, fontSize: 72, color: "#fff", textAlign: "center", margin: "0 0 40px", letterSpacing: -1, lineHeight: 1 }}>
-          WHO IS<br /><span style={{ color: C.red }}>THIS DEV?</span>
-        </h1>
+    <div style={{ background: C.bg, minHeight: "100vh" }} className="fade-in">
+      <div className="page-pad" style={{ maxWidth: 1140, margin: "0 auto", padding: "80px 40px" }}>
+        <div style={{ maxWidth: 680, margin: "0 auto" }}>
+          <SectionLabel>WALLET INTELLIGENCE</SectionLabel>
+          <div style={{ direction: "rtl", textAlign: "right", marginBottom: 16 }}>
+            <h2 style={{ fontFamily: arabic, fontSize: 32, color: "#fff", fontWeight: 900, marginBottom: 6 }}>افحص محفظة أو حساباً</h2>
+            <p style={{ fontFamily: arabic, fontSize: 14, color: C.sub }}>أدخل عنوان محفظة سولانا أو اسم مستخدم تويتر/X</p>
+          </div>
+          <h1 style={{ fontFamily: display, fontSize: 48, color: "#fff", letterSpacing: -1, lineHeight: 1, marginBottom: 8 }}>SCAN A WALLET</h1>
+          <p style={{ fontFamily: sans, fontSize: 14, color: C.sub, marginBottom: 32 }}>Enter a Solana wallet address or Twitter/X handle.</p>
 
-        {!loading ? (
-          <>
-            <div style={{ position: "relative", marginBottom: 12 }}>
-              <input
-                value={query} onChange={e => setQuery(e.target.value)}
-                onKeyDown={e => e.key === "Enter" && scan()}
-                placeholder="Wallet address or @twitter handle..."
-                style={{
-                  width: "100%", background: C.bg1, border: `1px solid ${C.border}`,
-                  padding: "16px 110px 16px 20px", fontFamily: mono, fontSize: 13,
-                  color: "#fff", outline: "none", letterSpacing: 0.5,
-                }}
-              />
-              <button onClick={scan} style={{
-                position: "absolute", right: 4, top: 4, bottom: 4,
-                background: C.red, border: "none", fontFamily: display, fontSize: 17,
-                color: "#fff", cursor: "pointer", padding: "0 22px", letterSpacing: 2,
-              }}>SCAN</button>
-            </div>
-            <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 40 }}>
-              {["7xKXf3aB2mNpQr8vLt4w...", "@devghost_sol", "3pRtN4QzBmVk..."].map(ex => (
-                <button key={ex} onClick={() => setQuery(ex)} style={{
-                  background: "none", border: `1px solid ${C.border}`, fontFamily: mono,
-                  fontSize: 10, color: C.muted, cursor: "pointer", padding: "5px 12px", letterSpacing: 0.5,
-                }}>↗ {ex}</button>
-              ))}
-            </div>
-            <div style={{ borderTop: `1px solid ${C.border}`, paddingTop: 28 }}>
-              <SectionLabel>RECENT SCANS</SectionLabel>
-              {RECENT_ALERTS.slice(0, 3).map((a, i) => (
-                <div key={i} onClick={() => { setReport(MOCK_WALLET_REPORT); setPage("report"); }}
-                  style={{
-                    display: "grid", gridTemplateColumns: "130px 1fr 40px",
-                    gap: 16, padding: "12px 0", borderBottom: `1px solid ${C.bg2}`,
-                    cursor: "pointer", alignItems: "center", transition: "opacity 0.15s",
-                  }}
-                  onMouseEnter={e => e.currentTarget.style.opacity = "0.7"}
-                  onMouseLeave={e => e.currentTarget.style.opacity = "1"}
-                >
-                  <span style={{ fontFamily: mono, fontSize: 11, color: "#fff" }}>{a.wallet}</span>
-                  <span style={{ fontFamily: sans, fontSize: 13, color: C.sub }}>{a.event}</span>
-                  <span style={{ fontFamily: display, fontSize: 22, color: C.red, textAlign: "right" }}>{a.score}</span>
+          <div style={{ display: "flex", gap: 0, marginBottom: 8 }}>
+            <input
+              type="text"
+              value={query}
+              onChange={e => { setQuery(e.target.value); setError(""); }}
+              onKeyDown={e => e.key === "Enter" && handleScan()}
+              placeholder="7xKXf3aB...  or  @devghost_sol"
+              style={{
+                flex: 1, background: C.bg1, border: `1px solid ${error ? C.red : C.border}`,
+                borderRight: "none", fontFamily: mono, fontSize: 13, color: "#fff",
+                padding: "14px 20px", outline: "none",
+              }}
+            />
+            <button onClick={handleScan} disabled={loading} style={{
+              background: loading ? C.muted : C.red, border: "none", fontFamily: display,
+              fontSize: 18, color: "#fff", cursor: loading ? "not-allowed" : "pointer",
+              padding: "14px 32px", letterSpacing: 2, display: "flex", alignItems: "center", gap: 8,
+              minWidth: 120,
+            }}>
+              {loading ? <Spinner /> : "SCAN →"}
+            </button>
+          </div>
+          {error && <div style={{ fontFamily: sans, fontSize: 12, color: C.red, marginBottom: 8 }}>{error}</div>}
+
+          {loading && (
+            <div className="fade-in" style={{ background: C.bg1, border: `1px solid ${C.border}`, padding: "20px 24px", marginTop: 16 }}>
+              <div style={{ fontFamily: mono, fontSize: 10, color: C.red, letterSpacing: 2, marginBottom: 12 }}>SCANNING...</div>
+              {["Fetching on-chain history", "Mapping wallet cluster", "Cross-referencing social identity", "Calculating risk score"].map((step, i) => (
+                <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
+                  <div style={{ width: 6, height: 6, background: C.red, borderRadius: "50%", animation: `pulse ${1 + i * 0.3}s infinite` }} />
+                  <span style={{ fontFamily: mono, fontSize: 10, color: C.sub }}>{step}</span>
                 </div>
               ))}
             </div>
-          </>
-        ) : (
-          <div style={{ textAlign: "center", padding: "50px 0" }}>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 12, marginBottom: 28 }}>
-              <Spinner />
-              <span style={{ fontFamily: display, fontSize: 36, color: C.red, letterSpacing: 2 }}>SCANNING...</span>
-            </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 10, alignItems: "center" }}>
-              {steps.map((s, i) => {
-                const current = steps.indexOf(step);
-                return (
-                  <div key={i} style={{
-                    fontFamily: mono, fontSize: 11, letterSpacing: 1,
-                    color: current > i ? C.green : current === i ? "#fff" : C.bg3,
-                    display: "flex", alignItems: "center", gap: 10, transition: "color 0.3s",
-                  }}>
-                    <span style={{ color: current > i ? C.green : current === i ? C.red : C.bg3, fontSize: 14 }}>
-                      {current > i ? "✓" : current === i ? "›" : "○"}
-                    </span>
-                    {s}
-                  </div>
-                );
-              })}
-            </div>
+          )}
+
+          <div style={{ display: "flex", gap: 10, marginTop: 20, flexWrap: "wrap" }}>
+            <button onClick={() => setPage("twitter")} style={{
+              background: "none", border: `1px solid ${C.border}`, fontFamily: arabic,
+              fontSize: 13, color: C.dim, cursor: "pointer", padding: "10px 20px",
+            }}>فاحص تويتر →</button>
           </div>
-        )}
+        </div>
       </div>
     </div>
   );
@@ -644,175 +886,55 @@ function SearchPage({ setPage, setReport }) {
 function TwitterScannerPage({ setPage, setTwitterReport }) {
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(false);
-  const [step, setStep] = useState("");
+  const [error, setError] = useState("");
 
-  const steps = [
-    "Connecting to social data layer...",
-    "Fetching account metadata...",
-    "Pulling username change history...",
-    "Scanning bio and display name changes...",
-    "Cross-referencing wallet addresses...",
-    "Computing identity risk score...",
-    "Generating report...",
-  ];
-
-  const scan = (demo = false) => {
-    const q = demo ? "@devghost_sol" : query;
-    if (!q.trim()) return;
-    if (demo) setQuery(q);
+  const handleScan = () => {
+    if (!query.trim()) { setError("Please enter a Twitter/X handle."); return; }
     setLoading(true);
-    let i = 0;
-    const tick = () => {
-      setStep(steps[i]);
-      i++;
-      if (i < steps.length) setTimeout(tick, 380);
-      else setTimeout(() => { setTwitterReport(MOCK_TWITTER_REPORT); setPage("twitter-report"); }, 500);
-    };
-    tick();
+    setError("");
+    setTimeout(() => {
+      setLoading(false);
+      setTwitterReport(MOCK_TWITTER_REPORT);
+      setPage("twitter-report");
+    }, 2000);
   };
 
   return (
     <div style={{ background: C.bg, minHeight: "100vh" }} className="fade-in">
-      {/* Header */}
-      <div style={{ borderBottom: `1px solid ${C.border}`, padding: "48px 40px 40px", maxWidth: 1140, margin: "0 auto" }}>
-        <SectionLabel>TWITTER / X IDENTITY SCANNER</SectionLabel>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 340px", gap: 40, alignItems: "end" }}>
-          <div>
-            <h1 style={{ fontFamily: display, fontSize: 64, color: "#fff", margin: "0 0 16px", letterSpacing: -1, lineHeight: 1 }}>
-              USERNAME<br /><span style={{ color: C.red }}>TRACKER</span>
-            </h1>
-            <p style={{ fontFamily: sans, fontSize: 14, color: C.sub, lineHeight: 1.7, maxWidth: 480 }}>
-              Every identity change leaves a trail. WHODEV tracks every Twitter/X username, bio, and display name change — 
-              with timestamps, risk context, and wallet correlation. Spot reputation masking before it's too late.
-            </p>
+      <div className="page-pad" style={{ maxWidth: 1140, margin: "0 auto", padding: "80px 40px" }}>
+        <div style={{ maxWidth: 680, margin: "0 auto" }}>
+          <SectionLabel>TWITTER IDENTITY SCANNER</SectionLabel>
+          <div style={{ direction: "rtl", textAlign: "right", marginBottom: 16 }}>
+            <h2 style={{ fontFamily: arabic, fontSize: 28, color: "#fff", fontWeight: 900, marginBottom: 6 }}>فاحص هوية تويتر</h2>
+            <p style={{ fontFamily: arabic, fontSize: 14, color: C.sub }}>أدخل اسم مستخدم تويتر/X للكشف عن تغييرات الهوية</p>
           </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 1 }}>
-            {[
-              { val: "4.2M+",  label: "HANDLES TRACKED",  color: C.red    },
-              { val: "91K",    label: "CHANGES LOGGED",    color: C.orange },
-              { val: "99.8%",  label: "CHANGE DETECTION",  color: C.green  },
-            ].map(s => (
-              <div key={s.label} style={{ background: C.bg1, border: `1px solid ${C.border}`, padding: "12px 20px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <span style={{ fontFamily: mono, fontSize: 9, color: C.muted, letterSpacing: 2 }}>{s.label}</span>
-                <span style={{ fontFamily: display, fontSize: 26, color: s.color }}>{s.val}</span>
-              </div>
-            ))}
+          <h1 style={{ fontFamily: display, fontSize: 48, color: "#fff", letterSpacing: -1, lineHeight: 1, marginBottom: 8 }}>TWITTER SCANNER</h1>
+          <p style={{ fontFamily: sans, fontSize: 14, color: C.sub, marginBottom: 32 }}>Track username, bio, and display name changes with risk scoring.</p>
+
+          <div style={{ display: "flex", gap: 0, marginBottom: 8 }}>
+            <input
+              type="text"
+              value={query}
+              onChange={e => { setQuery(e.target.value); setError(""); }}
+              onKeyDown={e => e.key === "Enter" && handleScan()}
+              placeholder="@devghost_sol"
+              style={{
+                flex: 1, background: C.bg1, border: `1px solid ${error ? C.red : C.border}`,
+                borderRight: "none", fontFamily: mono, fontSize: 13, color: "#fff",
+                padding: "14px 20px", outline: "none",
+              }}
+            />
+            <button onClick={handleScan} disabled={loading} style={{
+              background: loading ? C.muted : C.red, border: "none", fontFamily: display,
+              fontSize: 18, color: "#fff", cursor: loading ? "not-allowed" : "pointer",
+              padding: "14px 32px", letterSpacing: 2, display: "flex", alignItems: "center", gap: 8,
+              minWidth: 120,
+            }}>
+              {loading ? <Spinner /> : "SCAN →"}
+            </button>
           </div>
+          {error && <div style={{ fontFamily: sans, fontSize: 12, color: C.red, marginBottom: 8 }}>{error}</div>}
         </div>
-      </div>
-
-      {/* Search */}
-      <div style={{ padding: "40px", maxWidth: 1140, margin: "0 auto" }}>
-        {!loading ? (
-          <div>
-            <div style={{ maxWidth: 640, marginBottom: 32 }}>
-              <div style={{ position: "relative", marginBottom: 12 }}>
-                <input
-                  value={query} onChange={e => setQuery(e.target.value)}
-                  onKeyDown={e => e.key === "Enter" && scan()}
-                  placeholder="@twitterhandle or X username..."
-                  style={{
-                    width: "100%", background: C.bg1, border: `1px solid ${C.border}`,
-                    padding: "16px 120px 16px 20px", fontFamily: mono, fontSize: 13,
-                    color: "#fff", outline: "none", letterSpacing: 0.5,
-                  }}
-                />
-                <button onClick={() => scan()} style={{
-                  position: "absolute", right: 4, top: 4, bottom: 4,
-                  background: C.red, border: "none", fontFamily: display, fontSize: 16,
-                  color: "#fff", cursor: "pointer", padding: "0 22px", letterSpacing: 2,
-                }}>SCAN</button>
-              </div>
-              <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-                <button onClick={() => scan(true)} style={{
-                  background: C.bg2, border: `1px solid ${C.border}`, fontFamily: mono,
-                  fontSize: 10, color: C.orange, cursor: "pointer", padding: "7px 16px", letterSpacing: 1,
-                }}>▶ RUN DEMO — @devghost_sol</button>
-                <span style={{ fontFamily: mono, fontSize: 9, color: C.muted }}>See a full example scan with real patterns</span>
-              </div>
-            </div>
-
-            {/* How it works */}
-            <div style={{ marginBottom: 40 }}>
-              <SectionLabel>WHAT WE DETECT</SectionLabel>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 1, background: C.border, maxWidth: 900 }}>
-                {[
-                  { icon: "⟳", title: "Username Changes",    desc: "Every @handle rename with exact timestamp and frequency risk scoring." },
-                  { icon: "◉", title: "Bio Modifications",   desc: "Bio text history — detects project scrubbing after rug events." },
-                  { icon: "◆", title: "Display Name Edits",  desc: "Display name trail correlated with on-chain token launch timing." },
-                ].map((item, i) => (
-                  <div key={i} style={{ background: C.bg1, padding: "24px 20px" }}>
-                    <div style={{ fontFamily: display, fontSize: 28, color: C.red, marginBottom: 12 }}>{item.icon}</div>
-                    <div style={{ fontFamily: mono, fontSize: 10, color: "#fff", letterSpacing: 1, marginBottom: 8, fontWeight: 700 }}>{item.title}</div>
-                    <div style={{ fontFamily: sans, fontSize: 12, color: C.muted, lineHeight: 1.65 }}>{item.desc}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Recent twitter scans */}
-            <div>
-              <SectionLabel>RECENTLY FLAGGED ACCOUNTS</SectionLabel>
-              <div style={{ display: "flex", flexDirection: "column", gap: 1, maxWidth: 800 }}>
-                {[
-                  { handle: "@devghost_sol",   changes: 9, lastChange: "2d ago",  risk: 79, level: "HIGH"     },
-                  { handle: "@moonlaunch_xyz",  changes: 6, lastChange: "5d ago",  risk: 91, level: "CRITICAL" },
-                  { handle: "@sol_alpha_dev",   changes: 4, lastChange: "12d ago", risk: 55, level: "MEDIUM"   },
-                  { handle: "@defi_sensei_sol", changes: 3, lastChange: "20d ago", risk: 42, level: "MEDIUM"   },
-                ].map((item, i) => (
-                  <div key={i}
-                    onClick={() => { setTwitterReport(MOCK_TWITTER_REPORT); setPage("twitter-report"); }}
-                    style={{
-                      display: "grid", gridTemplateColumns: "160px 100px 100px 80px 80px",
-                      alignItems: "center", gap: 16, padding: "14px 20px",
-                      background: C.bg1, border: `1px solid ${C.border}`,
-                      cursor: "pointer", transition: "border-color 0.15s",
-                    }}
-                    onMouseEnter={e => e.currentTarget.style.borderColor = C.red}
-                    onMouseLeave={e => e.currentTarget.style.borderColor = C.border}
-                  >
-                    <span style={{ fontFamily: mono, fontSize: 12, color: "#fff" }}>{item.handle}</span>
-                    <span style={{ fontFamily: sans, fontSize: 12, color: C.sub }}>{item.changes} changes</span>
-                    <span style={{ fontFamily: mono, fontSize: 10, color: C.muted }}>{item.lastChange}</span>
-                    <span style={{ fontFamily: display, fontSize: 22, color: riskColor(item.risk) }}>{item.risk}</span>
-                    <div>
-                      <Badge label={item.level}
-                        color={item.level === "CRITICAL" ? C.red : item.level === "HIGH" ? C.orange : C.yellow}
-                        small />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        ) : (
-          <div style={{ maxWidth: 640, padding: "60px 0" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 32 }}>
-              <Spinner />
-              <span style={{ fontFamily: display, fontSize: 34, color: C.red, letterSpacing: 2 }}>SCANNING IDENTITY...</span>
-            </div>
-            <div style={{ fontFamily: mono, fontSize: 11, color: C.muted, letterSpacing: 1, marginBottom: 20 }}>
-              TARGET: {query}
-            </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-              {steps.map((s, i) => {
-                const current = steps.indexOf(step);
-                return (
-                  <div key={i} style={{
-                    fontFamily: mono, fontSize: 11, letterSpacing: 1,
-                    color: current > i ? C.green : current === i ? "#fff" : C.bg3,
-                    display: "flex", alignItems: "center", gap: 10, transition: "color 0.3s",
-                  }}>
-                    <span style={{ color: current > i ? C.green : current === i ? C.red : C.bg3 }}>
-                      {current > i ? "✓" : current === i ? "›" : "○"}
-                    </span>
-                    {s}
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );
@@ -821,172 +943,95 @@ function TwitterScannerPage({ setPage, setTwitterReport }) {
 // ─── TWITTER REPORT PAGE ──────────────────────────────────────────────────────
 function TwitterReportPage({ report, setPage }) {
   const [activeTab, setActiveTab] = useState("timeline");
-  const tabs = ["timeline", "flags", "linked wallets"];
+  const tabs = ["timeline", "flags"];
 
   return (
     <div style={{ background: C.bg, minHeight: "100vh" }} className="fade-in">
-      {/* Report Header */}
       <div style={{ background: C.bg1, borderBottom: `1px solid ${C.border}`, padding: "32px 40px" }}>
         <div style={{ maxWidth: 1140, margin: "0 auto" }}>
           <SectionLabel>TWITTER IDENTITY REPORT</SectionLabel>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: 40, alignItems: "start" }}>
+          <div className="report-header-grid" style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: 40, alignItems: "start", marginBottom: 24 }}>
             <div>
-              <div style={{ fontFamily: display, fontSize: 52, color: "#fff", letterSpacing: -1, lineHeight: 1, marginBottom: 8 }}>
-                {report.handle}
-              </div>
-              <div style={{ fontFamily: mono, fontSize: 11, color: C.sub, marginBottom: 20 }}>
-                {report.displayName} · Joined {report.joined}
-              </div>
-              <div style={{ fontFamily: sans, fontSize: 14, color: C.muted, marginBottom: 20, maxWidth: 500 }}>
-                "{report.bio}"
-              </div>
+              <div style={{ fontFamily: display, fontSize: 48, color: "#fff", letterSpacing: -1, marginBottom: 4 }}>{report.handle}</div>
+              <div style={{ fontFamily: sans, fontSize: 14, color: C.sub, marginBottom: 16 }}>{report.bio}</div>
               <div style={{ display: "flex", gap: 24, flexWrap: "wrap" }}>
                 {[
-                  { label: "FOLLOWERS",    val: report.followers  },
-                  { label: "FOLLOWING",    val: report.following  },
-                  { label: "TWEETS",       val: report.tweets     },
-                  { label: "TOTAL CHANGES",val: report.totalChanges },
-                  { label: "AVG DAYS/CHANGE", val: report.avgDaysBetweenChanges + "d" },
+                  { label: "JOINED",    val: report.joined    },
+                  { label: "FOLLOWERS", val: report.followers },
+                  { label: "CHANGES",   val: report.totalChanges },
                 ].map(s => (
                   <div key={s.label}>
                     <div style={{ fontFamily: mono, fontSize: 8, color: C.muted, letterSpacing: 2 }}>{s.label}</div>
-                    <div style={{ fontFamily: mono, fontSize: 14, color: "#fff", marginTop: 3 }}>{s.val}</div>
+                    <div style={{ fontFamily: mono, fontSize: 13, color: "#fff", marginTop: 3 }}>{s.val}</div>
                   </div>
                 ))}
               </div>
             </div>
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
-              <RiskGauge score={report.riskScore} size={150} />
-              <Badge label={report.riskLevel}
-                color={report.riskLevel === "CRITICAL" ? C.red : report.riskLevel === "HIGH" ? C.orange : C.yellow} />
+              <RiskGauge score={report.riskScore} size={130} />
+              <Badge label={report.riskLevel} color={riskColor(report.riskScore)} />
             </div>
-          </div>
-
-          {/* Key stats */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 1, background: C.border, marginTop: 28 }}>
-            {[
-              { val: report.usernameChanges,    label: "USERNAME CHANGES",      color: C.red    },
-              { val: report.bioChanges,          label: "BIO CHANGES",           color: C.orange },
-              { val: report.displayNameChanges,  label: "DISPLAY NAME CHANGES",  color: C.yellow },
-              { val: report.linkedWallets.length, label: "LINKED WALLETS",       color: C.red    },
-            ].map(s => (
-              <div key={s.label} style={{ background: C.bg, padding: "18px 24px" }}>
-                <div style={{ fontFamily: display, fontSize: 36, color: s.color }}>{s.val}</div>
-                <div style={{ fontFamily: mono, fontSize: 9, color: C.muted, letterSpacing: 2, marginTop: 4 }}>{s.label}</div>
-              </div>
-            ))}
           </div>
         </div>
       </div>
 
-      {/* Tabs */}
-      <div style={{ borderBottom: `1px solid ${C.border}` }}>
+      <div className="tabs-row" style={{ borderBottom: `1px solid ${C.border}` }}>
         <div style={{ maxWidth: 1140, margin: "0 auto", padding: "0 40px", display: "flex" }}>
           {tabs.map(t => (
             <button key={t} onClick={() => setActiveTab(t)} style={{
               background: "none", border: "none", fontFamily: mono, fontSize: 10,
               color: activeTab === t ? "#fff" : C.muted, cursor: "pointer",
-              padding: "14px 20px", letterSpacing: 1.5,
+              padding: "14px 20px", letterSpacing: 1.5, textTransform: "uppercase",
               borderBottom: activeTab === t ? `2px solid ${C.red}` : "2px solid transparent",
-              textTransform: "uppercase",
+              whiteSpace: "nowrap",
             }}>{t}</button>
           ))}
         </div>
       </div>
 
-      {/* Tab Content */}
       <div style={{ maxWidth: 1140, margin: "0 auto", padding: "36px 40px" }}>
-
-        {/* TIMELINE TAB */}
         {activeTab === "timeline" && (
           <div className="fade-in">
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 280px", gap: 32 }}>
-              <div>
-                <SectionLabel>IDENTITY CHANGE TIMELINE</SectionLabel>
-                <div style={{ position: "relative" }}>
-                  <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: 1, background: C.border }} />
-                  {report.timeline.map((event, i) => (
-                    <div key={i} style={{ position: "relative", paddingLeft: 28, paddingBottom: 28 }}>
-                      <div style={{ position: "absolute", left: -4, top: 5, width: 8, height: 8, background: event.changes.some(c => c.risk === "high") ? C.red : C.orange, borderRadius: "50%", boxShadow: `0 0 6px ${event.changes.some(c => c.risk === "high") ? C.red : C.orange}` }} />
-                      <div style={{ fontFamily: mono, fontSize: 9, color: C.muted, letterSpacing: 1, marginBottom: 10 }}>
-                        {event.date} <span style={{ color: C.bg3 }}>— {event.daysAgo}d ago</span>
+            <SectionLabel>IDENTITY CHANGE TIMELINE</SectionLabel>
+            <div style={{ position: "relative", paddingLeft: 20, maxWidth: 700 }}>
+              <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: 1, background: C.border }} />
+              {report.timeline.map((entry, i) => (
+                <div key={i} style={{ position: "relative", paddingLeft: 24, paddingBottom: 24 }}>
+                  <div style={{ position: "absolute", left: -4, top: 5, width: 8, height: 8, background: C.red, borderRadius: "50%" }} />
+                  <div style={{ fontFamily: mono, fontSize: 9, color: C.muted, marginBottom: 8 }}>{entry.date} · {entry.daysAgo}d ago</div>
+                  <div style={{ background: C.bg1, border: `1px solid ${C.border}`, padding: "14px 18px" }}>
+                    {entry.changes.map((c, j) => (
+                      <div key={j} style={{ marginBottom: j < entry.changes.length - 1 ? 10 : 0 }}>
+                        <Badge label={c.type} color={changeColor(c.risk)} small />
+                        <div style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap", marginTop: 8 }}>
+                          <span style={{ fontFamily: mono, fontSize: 12, color: C.muted, textDecoration: "line-through" }}>{c.from}</span>
+                          <span style={{ color: C.red, fontFamily: mono }}>→</span>
+                          <span style={{ fontFamily: mono, fontSize: 12, color: "#fff" }}>{c.to}</span>
+                        </div>
                       </div>
-                      <div style={{ background: C.bg1, border: `1px solid ${C.border}`, padding: "16px 20px" }}>
-                        {event.changes.map((change, j) => (
-                          <div key={j} style={{ marginBottom: j < event.changes.length - 1 ? 14 : 0 }}>
-                            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
-                              <Badge label={change.type} color={changeColor(change.risk)} small />
-                              <Badge label={change.risk.toUpperCase()} color={changeColor(change.risk)} small />
-                            </div>
-                            <div style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
-                              <span style={{ fontFamily: mono, fontSize: 12, color: C.muted, textDecoration: "line-through" }}>{change.from}</span>
-                              <span style={{ color: C.red, fontFamily: mono }}>→</span>
-                              <span style={{ fontFamily: mono, fontSize: 12, color: "#fff", fontWeight: 700 }}>{change.to}</span>
-                            </div>
-                          </div>
-                        ))}
-                        {event.context && (
-                          <div style={{ marginTop: 12, paddingTop: 12, borderTop: `1px solid ${C.border}` }}>
-                            <div style={{ fontFamily: sans, fontSize: 12, color: C.sub, lineHeight: 1.6 }}>
-                              ◈ {event.context}
-                            </div>
-                          </div>
-                        )}
-                      </div>
+                    ))}
+                    <div style={{ fontFamily: sans, fontSize: 12, color: C.muted, marginTop: 10, paddingTop: 10, borderTop: `1px solid ${C.bg3}` }}>
+                      {entry.context}
                     </div>
-                  ))}
+                  </div>
                 </div>
-              </div>
-
-              {/* Sidebar summary */}
-              <div>
-                <SectionLabel>RISK SUMMARY</SectionLabel>
-                <Card style={{ marginBottom: 12 }}>
-                  <div style={{ fontFamily: mono, fontSize: 10, color: C.muted, letterSpacing: 1, marginBottom: 12 }}>CHANGE FREQUENCY</div>
-                  <div style={{ fontFamily: display, fontSize: 36, color: C.red, marginBottom: 4 }}>
-                    {report.avgDaysBetweenChanges}d
-                  </div>
-                  <div style={{ fontFamily: sans, fontSize: 12, color: C.muted }}>avg. between identity changes</div>
-                  <div style={{ marginTop: 12, paddingTop: 12, borderTop: `1px solid ${C.border}` }}>
-                    <div style={{ fontFamily: mono, fontSize: 10, color: C.orange }}>
-                      ⚠ Exceeds 99th percentile of normal users
-                    </div>
-                  </div>
-                </Card>
-                <Card>
-                  <div style={{ fontFamily: mono, fontSize: 10, color: C.muted, letterSpacing: 1, marginBottom: 14 }}>CHANGE BREAKDOWN</div>
-                  {[
-                    { label: "Username",     val: report.usernameChanges,   color: C.red    },
-                    { label: "Bio",          val: report.bioChanges,        color: C.orange },
-                    { label: "Display Name", val: report.displayNameChanges, color: C.yellow },
-                  ].map(s => (
-                    <div key={s.label} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
-                      <span style={{ fontFamily: sans, fontSize: 12, color: C.sub }}>{s.label}</span>
-                      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                        <div style={{ width: s.val * 20, height: 4, background: s.color, maxWidth: 80 }} />
-                        <span style={{ fontFamily: mono, fontSize: 12, color: s.color }}>{s.val}</span>
-                      </div>
-                    </div>
-                  ))}
-                </Card>
-              </div>
+              ))}
             </div>
           </div>
         )}
 
-        {/* FLAGS TAB */}
         {activeTab === "flags" && (
           <div className="fade-in">
-            <SectionLabel>RISK FLAGS DETECTED</SectionLabel>
-            <div style={{ display: "flex", flexDirection: "column", gap: 1, maxWidth: 800 }}>
+            <SectionLabel>RISK FLAGS</SectionLabel>
+            <div style={{ display: "flex", flexDirection: "column", gap: 1, maxWidth: 700 }}>
               {report.flags.map((f, i) => (
                 <div key={i} style={{
-                  display: "flex", alignItems: "flex-start", gap: 16, padding: "18px 20px",
+                  display: "flex", alignItems: "flex-start", gap: 16, padding: "16px 20px",
                   background: C.bg1, borderLeft: `3px solid ${severityColor(f.severity)}`,
                 }}>
                   <Badge label={f.severity.toUpperCase()} color={severityColor(f.severity)} small />
                   <div>
-                    <div style={{ fontFamily: mono, fontSize: 12, color: "#fff", fontWeight: 700, marginBottom: 6 }}>{f.label}</div>
+                    <div style={{ fontFamily: mono, fontSize: 12, color: "#fff", fontWeight: 700, marginBottom: 5 }}>{f.label}</div>
                     <div style={{ fontFamily: sans, fontSize: 13, color: C.sub, lineHeight: 1.6 }}>{f.detail}</div>
                   </div>
                 </div>
@@ -995,15 +1040,15 @@ function TwitterReportPage({ report, setPage }) {
           </div>
         )}
 
-        {/* LINKED WALLETS TAB */}
-        {activeTab === "linked wallets" && (
+        {activeTab === "wallets" && (
           <div className="fade-in">
             <SectionLabel>WALLETS LINKED TO THIS IDENTITY</SectionLabel>
-            <div style={{ display: "flex", flexDirection: "column", gap: 1, maxWidth: 700, marginBottom: 24 }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 1, maxWidth: 700 }}>
               {report.linkedWallets.map((w, i) => (
                 <div key={i} style={{
                   display: "flex", justifyContent: "space-between", alignItems: "center",
                   padding: "16px 20px", background: C.bg1, border: `1px solid ${C.border}`,
+                  flexWrap: "wrap", gap: 8,
                 }}>
                   <span style={{ fontFamily: mono, fontSize: 13, color: "#fff" }}>{w}</span>
                   <button onClick={() => setPage("search")} style={{
@@ -1013,34 +1058,20 @@ function TwitterReportPage({ report, setPage }) {
                 </div>
               ))}
             </div>
-            <div style={{ background: C.bg2, border: `1px solid ${C.border}`, padding: "16px 20px", maxWidth: 700 }}>
-              <div style={{ fontFamily: mono, fontSize: 10, color: C.orange, marginBottom: 6 }}>◈ HOW WE LINK WALLETS</div>
-              <div style={{ fontFamily: sans, fontSize: 13, color: C.sub, lineHeight: 1.7 }}>
-                Wallet-to-Twitter links are detected through on-chain NFT minting with social handles, token launch announcement timing correlation, 
-                Bonfida name service records, and behavioral timing patterns between social posts and on-chain activity.
-              </div>
-            </div>
           </div>
         )}
       </div>
 
-      {/* Footer actions */}
-      <div style={{ borderTop: `1px solid ${C.border}`, padding: "20px 40px" }}>
-        <div style={{ maxWidth: 1140, margin: "0 auto", display: "flex", justifyContent: "space-between" }}>
+      <div className="footer-pad" style={{ borderTop: `1px solid ${C.border}`, padding: "20px 40px" }}>
+        <div style={{ maxWidth: 1140, margin: "0 auto", display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 8 }}>
           <button onClick={() => setPage("twitter")} style={{
             background: "none", border: `1px solid ${C.border}`, fontFamily: mono,
             fontSize: 10, color: C.dim, cursor: "pointer", padding: "10px 20px", letterSpacing: 1,
           }}>← NEW SCAN</button>
-          <div style={{ display: "flex", gap: 10 }}>
-            <button onClick={() => { setPage("search"); }} style={{
-              background: "none", border: `1px solid ${C.border}`, fontFamily: mono,
-              fontSize: 10, color: C.dim, cursor: "pointer", padding: "10px 20px", letterSpacing: 1,
-            }}>SCAN LINKED WALLET</button>
-            <button style={{
-              background: C.red, border: "none", fontFamily: mono,
-              fontSize: 10, color: "#fff", cursor: "pointer", padding: "10px 20px", letterSpacing: 1, fontWeight: 700,
-            }}>EXPORT REPORT</button>
-          </div>
+          <button style={{
+            background: C.red, border: "none", fontFamily: mono,
+            fontSize: 10, color: "#fff", cursor: "pointer", padding: "10px 20px", letterSpacing: 1, fontWeight: 700,
+          }}>EXPORT REPORT</button>
         </div>
       </div>
     </div>
@@ -1054,14 +1085,13 @@ function ReportPage({ report, setPage }) {
 
   return (
     <div style={{ background: C.bg, minHeight: "100vh" }} className="fade-in">
-      {/* Report Header */}
       <div style={{ background: C.bg1, borderBottom: `1px solid ${C.border}`, padding: "32px 40px" }}>
         <div style={{ maxWidth: 1140, margin: "0 auto" }}>
           <SectionLabel>WALLET INTELLIGENCE REPORT</SectionLabel>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: 40, alignItems: "start", marginBottom: 28 }}>
+          <div className="report-header-grid" style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: 40, alignItems: "start", marginBottom: 28 }}>
             <div>
               <div style={{ fontFamily: display, fontSize: 48, color: "#fff", letterSpacing: -1, marginBottom: 6 }}>{report.twitter}</div>
-              <div style={{ fontFamily: mono, fontSize: 10, color: C.muted, marginBottom: 20, letterSpacing: 0.5 }}>{report.fullWallet}</div>
+              <div style={{ fontFamily: mono, fontSize: 10, color: C.muted, marginBottom: 20, letterSpacing: 0.5, wordBreak: "break-all" }}>{report.fullWallet}</div>
               <div style={{ display: "flex", gap: 24, flexWrap: "wrap" }}>
                 {[
                   { label: "FIRST SEEN",  val: report.firstActivity },
@@ -1082,16 +1112,15 @@ function ReportPage({ report, setPage }) {
             </div>
           </div>
 
-          {/* Key stats row */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 1, background: C.border }}>
+          <div className="key-stats-grid" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 1, background: C.border }}>
             {[
               { val: report.linkedWallets,   label: "LINKED WALLETS",   color: C.orange },
               { val: `${report.ruggedTokens}/${report.totalTokensLaunched}`, label: "RUG RATE", color: C.red },
               { val: report.totalVolumeDrained, label: "VOLUME DRAINED", color: C.red    },
               { val: report.flags.length,    label: "ACTIVE FLAGS",      color: C.yellow },
             ].map(s => (
-              <div key={s.label} style={{ background: C.bg, padding: "18px 24px" }}>
-                <div style={{ fontFamily: display, fontSize: 34, color: s.color }}>{s.val}</div>
+              <div key={s.label} style={{ background: C.bg, padding: "18px 20px" }}>
+                <div style={{ fontFamily: display, fontSize: 30, color: s.color }}>{s.val}</div>
                 <div style={{ fontFamily: mono, fontSize: 9, color: C.muted, letterSpacing: 2, marginTop: 4 }}>{s.label}</div>
               </div>
             ))}
@@ -1099,8 +1128,7 @@ function ReportPage({ report, setPage }) {
         </div>
       </div>
 
-      {/* Tabs */}
-      <div style={{ borderBottom: `1px solid ${C.border}` }}>
+      <div className="tabs-row" style={{ borderBottom: `1px solid ${C.border}`, overflowX: "auto" }}>
         <div style={{ maxWidth: 1140, margin: "0 auto", padding: "0 40px", display: "flex" }}>
           {tabs.map(t => (
             <button key={t} onClick={() => setActiveTab(t)} style={{
@@ -1108,14 +1136,13 @@ function ReportPage({ report, setPage }) {
               color: activeTab === t ? "#fff" : C.muted, cursor: "pointer",
               padding: "14px 20px", letterSpacing: 1.5, textTransform: "uppercase",
               borderBottom: activeTab === t ? `2px solid ${C.red}` : "2px solid transparent",
+              whiteSpace: "nowrap",
             }}>{t}</button>
           ))}
         </div>
       </div>
 
-      {/* Tab Content */}
       <div style={{ maxWidth: 1140, margin: "0 auto", padding: "36px 40px" }}>
-
         {activeTab === "overview" && (
           <div className="fade-in">
             <SectionLabel>RED FLAGS DETECTED</SectionLabel>
@@ -1124,9 +1151,10 @@ function ReportPage({ report, setPage }) {
                 <div key={i} style={{
                   display: "flex", alignItems: "flex-start", gap: 16, padding: "16px 20px",
                   background: C.bg1, borderLeft: `3px solid ${severityColor(f.severity)}`,
+                  flexWrap: "wrap",
                 }}>
                   <Badge label={f.severity.toUpperCase()} color={severityColor(f.severity)} small />
-                  <div>
+                  <div style={{ flex: 1, minWidth: 200 }}>
                     <div style={{ fontFamily: mono, fontSize: 12, color: "#fff", fontWeight: 700, marginBottom: 5 }}>{f.label}</div>
                     <div style={{ fontFamily: sans, fontSize: 13, color: C.sub, lineHeight: 1.6 }}>{f.detail}</div>
                   </div>
@@ -1139,20 +1167,20 @@ function ReportPage({ report, setPage }) {
         {activeTab === "tokens" && (
           <div className="fade-in">
             <SectionLabel>TOKEN LAUNCH HISTORY</SectionLabel>
-            <div style={{ background: C.border, padding: 1 }}>
-              <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr 80px 90px", gap: 16, padding: "10px 20px", background: C.bg1 }}>
+            <div style={{ background: C.border, padding: 1, overflowX: "auto" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr 80px 90px", gap: 12, padding: "10px 20px", background: C.bg1, minWidth: 400 }}>
                 {["TOKEN", "DATE", "RAISED", "DAYS", "STATUS"].map(h => (
                   <div key={h} style={{ fontFamily: mono, fontSize: 9, color: C.muted, letterSpacing: 2 }}>{h}</div>
                 ))}
               </div>
               {report.tokenHistory.map((t, i) => (
-                <div key={i} style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr 80px 90px", gap: 16, padding: "14px 20px", background: C.bg, alignItems: "center", borderTop: `1px solid ${C.border}` }}>
+                <div key={i} style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr 80px 90px", gap: 12, padding: "14px 20px", background: C.bg, alignItems: "center", borderTop: `1px solid ${C.border}`, minWidth: 400 }}>
                   <div>
                     <div style={{ fontFamily: mono, fontSize: 12, color: "#fff" }}>{t.name}</div>
                     <div style={{ fontFamily: mono, fontSize: 9, color: C.muted }}>${t.symbol}</div>
                   </div>
                   <div style={{ fontFamily: sans, fontSize: 12, color: C.muted }}>{t.date}</div>
-                  <div style={{ fontFamily: display, fontSize: 20, color: "#fff" }}>{t.raised}</div>
+                  <div style={{ fontFamily: display, fontSize: 18, color: "#fff" }}>{t.raised}</div>
                   <div style={{ fontFamily: mono, fontSize: 11, color: C.muted }}>{t.daysLive}d</div>
                   <Badge label={t.status} color={statusColor(t.status)} small />
                 </div>
@@ -1164,17 +1192,17 @@ function ReportPage({ report, setPage }) {
         {activeTab === "cluster" && (
           <div className="fade-in">
             <SectionLabel>WALLET CLUSTER — {report.walletCluster.length} WALLETS IDENTIFIED</SectionLabel>
-            <div style={{ display: "flex", flexDirection: "column", gap: 1 }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 1, overflowX: "auto" }}>
               {report.walletCluster.map((w, i) => (
                 <div key={i} style={{
-                  display: "grid", gridTemplateColumns: "200px 90px 1fr 120px",
-                  gap: 16, padding: "14px 20px", background: C.bg1, alignItems: "center",
+                  display: "grid", gridTemplateColumns: "1fr 90px 120px",
+                  gap: 12, padding: "14px 20px", background: C.bg1, alignItems: "center",
                   borderLeft: `3px solid ${w.role === "PRIMARY" ? "#fff" : roleColor(w.role)}`,
+                  minWidth: 300,
                 }}>
-                  <span style={{ fontFamily: mono, fontSize: 12, color: "#fff" }}>{w.address}</span>
+                  <span style={{ fontFamily: mono, fontSize: 12, color: "#fff", overflow: "hidden", textOverflow: "ellipsis" }}>{w.address}</span>
                   <Badge label={w.role} color={roleColor(w.role)} small />
-                  <span style={{ fontFamily: sans, fontSize: 12, color: C.muted }}>Funded via: {w.funded}</span>
-                  <span style={{ fontFamily: display, fontSize: 18, color: "#fff", textAlign: "right" }}>{w.balance}</span>
+                  <span style={{ fontFamily: display, fontSize: 16, color: "#fff", textAlign: "right" }}>{w.balance}</span>
                 </div>
               ))}
             </div>
@@ -1207,8 +1235,8 @@ function ReportPage({ report, setPage }) {
         )}
       </div>
 
-      <div style={{ borderTop: `1px solid ${C.border}`, padding: "20px 40px" }}>
-        <div style={{ maxWidth: 1140, margin: "0 auto", display: "flex", justifyContent: "space-between" }}>
+      <div className="footer-pad" style={{ borderTop: `1px solid ${C.border}`, padding: "20px 40px" }}>
+        <div style={{ maxWidth: 1140, margin: "0 auto", display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 8 }}>
           <button onClick={() => setPage("search")} style={{
             background: "none", border: `1px solid ${C.border}`, fontFamily: mono,
             fontSize: 10, color: C.dim, cursor: "pointer", padding: "10px 20px", letterSpacing: 1,
@@ -1223,121 +1251,92 @@ function ReportPage({ report, setPage }) {
   );
 }
 
-// ─── ABOUT / PROJECT DOCS PAGE ────────────────────────────────────────────────
+// ─── ABOUT PAGE ────────────────────────────────────────────────────────────────
 function AboutPage({ setPage }) {
   const [openSection, setOpenSection] = useState(null);
 
   const sections = [
     {
       id: "what",
-      title: "What is WHODEV?",
+      titleAr: "ما هو WHODEV؟",
+      titleEn: "What is WHODEV?",
+      contentAr: `WHODEV منصة استخباراتية مفتوحة مبنية لنظام سولانا. هدفنا هو منح المستثمرين الأفراد نفس الرؤية على السلسلة التي يستخدمها المحترفون.
+
+نجمع البيانات من بلوكتشين سولانا وواجهات برمجية متعددة لبناء ملفات مخاطر شاملة. كل مسح ينتج تقريراً منظماً بدرجة مخاطر وسلوكيات مُبلَّغ عنها وخريطة للمحافظ المرتبطة.`,
       content: `WHODEV is an open intelligence platform built for the Solana ecosystem. Our goal is to give retail investors the same on-chain visibility that sophisticated funds and experienced traders use internally.
 
-We aggregate data from the Solana blockchain, Helius RPC, DAS API, and social identity layers to build comprehensive risk profiles of anonymous developers and wallets. Every scan produces a structured Risk Report with a quantified score, flagged behaviors, and a cluster map of linked wallets.
-
-The platform is fully automated — no manual curation. Risk scores update continuously as new on-chain activity and social changes are detected.`,
+We aggregate data from the Solana blockchain, Helius RPC, DAS API, and social identity layers to build comprehensive risk profiles of anonymous developers and wallets.`,
     },
     {
       id: "twitter",
-      title: "Twitter Username Tracker — How It Works",
-      content: `The Twitter/X Identity Scanner is one of WHODEV's most powerful tools. Anonymous developers frequently change their username to escape reputational damage after a rug or failed project.
+      titleAr: "فاحص تويتر — كيف يعمل؟",
+      titleEn: "Twitter Username Tracker — How It Works",
+      contentAr: `يُعدّ فاحص هوية تويتر/X أحد أقوى أدوات WHODEV. المطورون المجهولون يغيرون أسماءهم بعد كل عملية احتيال.
 
-Our system:
-1. Archives every public username, display name, and bio at regular intervals
-2. Detects changes within minutes of them occurring
-3. Correlates identity changes with on-chain activity (e.g., username changed 3 days before a new token launch)
-4. Scores the frequency and pattern of changes against baseline behavior of legitimate builders
+نظامنا:
+1. يؤرشف كل اسم مستخدم وسيرة ذاتية على فترات منتظمة
+2. يكتشف التغييرات في دقائق
+3. يربط تغييرات الهوية بالنشاط على السلسلة
+4. يُقيِّم تواتر التغييرات ونمطها`,
+      content: `The Twitter/X Identity Scanner is one of WHODEV's most powerful tools. Anonymous developers frequently change their username to escape reputational damage after a rug.
 
-A high-frequency identity changer with linked rug history is flagged as HIGH or CRITICAL risk automatically.`,
+Our system archives every public username, display name, and bio at regular intervals and detects changes within minutes of them occurring.`,
     },
     {
       id: "risk",
-      title: "How Risk Scores Are Calculated",
-      content: `Risk Scores (0–100) are computed by a weighted model across four signal categories:
+      titleAr: "كيف تُحسَب درجات المخاطر؟",
+      titleEn: "How Risk Scores Are Calculated",
+      content: `Risk Scores (0–100) are computed by a weighted model:
 
-ON-CHAIN SIGNALS (50%)
-— Token launch frequency and survival rate
-— LP removal patterns and timing
-— Wallet funding source (CEX withdrawal batches, mixers)
-— Sniper wallet coordination timing
-
-SOCIAL SIGNALS (25%)
-— Username change frequency and timing correlation
-— Bio scrubbing patterns post-rug
-— Account age vs. activity volume
-
-CLUSTER SIGNALS (15%)
-— Number of linked wallets
-— Shared funding sources
-— Behavioral timing synchronization
-
-REPUTATION SIGNALS (10%)
-— Community reports and on-chain dispute records
-— Cross-platform mentions in known rug trackers
+ON-CHAIN SIGNALS (50%) — Token launch frequency, LP removal patterns, wallet funding source.
+SOCIAL SIGNALS (25%) — Username change frequency, bio scrubbing patterns.
+CLUSTER SIGNALS (15%) — Number of linked wallets, shared funding sources.
+REPUTATION SIGNALS (10%) — Community reports and cross-platform mentions.
 
 Scores above 75 are flagged HIGH, above 85 are CRITICAL.`,
     },
     {
-      id: "tech",
-      title: "Technical Stack",
-      content: `WHODEV is built on a real-time data pipeline designed for low-latency identity correlation:
-
-DATA LAYER
-— Solana RPC (Helius) for on-chain transaction streaming
-— DAS API for compressed NFT and token metadata
-— Custom social archival system for Twitter/X identity snapshots
-— PostgreSQL + TimescaleDB for time-series identity change storage
-
-INTELLIGENCE LAYER
-— Graph-based wallet cluster analysis (custom fingerprinting engine)
-— Behavioral timing analysis for sniper/dump wallet detection
-— NLP-based bio comparison for scrubbing detection
-— Risk model trained on 3,000+ confirmed rug events
-
-FRONTEND
-— React + Vite (this interface)
-— Fully responsive, dark-mode only
-— No cookies, no tracking — privacy-first`,
-    },
-    {
       id: "roadmap",
-      title: "Roadmap",
+      titleAr: "خريطة الطريق",
+      titleEn: "Roadmap",
       content: `Q2 2025 — LAUNCHED
 ✓ Wallet Intelligence Scanner (demo)
 ✓ Twitter Username Tracker (demo)
 ✓ Risk Scoring v1
-✓ Wallet Cluster Mapping
 
 Q3 2025 — IN PROGRESS
 ◈ Telegram & Discord alert bot
-◈ Real-time data pipeline (live, not mock)
+◈ Real-time data pipeline (live)
 ◈ API access for power users
-◈ Watchlist — monitor specific wallets
 
 Q4 2025 — PLANNED
-◈ Browser extension for inline risk scores
+◈ Browser extension
 ◈ Pump.fun and Raydium integration
-◈ Mobile app
-◈ Community report system`,
+◈ Mobile app`,
     },
   ];
 
   return (
     <div style={{ background: C.bg, minHeight: "100vh" }} className="fade-in">
-      <div style={{ maxWidth: 1140, margin: "0 auto", padding: "60px 40px" }}>
+      <div className="page-pad" style={{ maxWidth: 1140, margin: "0 auto", padding: "60px 40px" }}>
         <SectionLabel>PROJECT DOCUMENTATION</SectionLabel>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 340px", gap: 60, alignItems: "start" }}>
+        <div className="about-grid" style={{ display: "grid", gridTemplateColumns: "1fr 320px", gap: 60, alignItems: "start" }}>
           <div>
-            <h1 style={{ fontFamily: display, fontSize: 64, color: "#fff", letterSpacing: -1, lineHeight: 1, marginBottom: 20 }}>
+            <div style={{ direction: "rtl", textAlign: "right", marginBottom: 12 }}>
+              <h1 style={{ fontFamily: arabic, fontSize: 40, color: "#fff", fontWeight: 900, lineHeight: 1.2, marginBottom: 12 }}>
+                حول <span style={{ color: C.red }}>WHODEV</span>
+              </h1>
+            </div>
+            <h2 style={{ fontFamily: display, fontSize: 56, color: "#fff", letterSpacing: -1, lineHeight: 1, marginBottom: 20 }}>
               ABOUT<br /><span style={{ color: C.red }}>WHODEV</span>
-            </h1>
-            <p style={{ fontFamily: sans, fontSize: 15, color: C.sub, lineHeight: 1.8, marginBottom: 40, maxWidth: 560 }}>
-              WHODEV is an on-chain and social intelligence platform for the Solana ecosystem — built to expose anonymous developers, 
-              detect rugpull patterns, and track identity changes in real-time. 
+            </h2>
+            <p style={{ fontFamily: arabic, fontSize: 14, color: C.sub, lineHeight: 2, marginBottom: 8, direction: "rtl", textAlign: "right" }}>
+              WHODEV منصة استخباراتية للكشف عن مطوري سولانا المجهولين واكتشاف الاحتيال وتتبع تغييرات الهوية.
+            </p>
+            <p style={{ fontFamily: sans, fontSize: 14, color: C.muted, lineHeight: 1.8, marginBottom: 32 }}>
               Built for degens, by people who got rugged.
             </p>
 
-            {/* Accordion */}
             <div style={{ display: "flex", flexDirection: "column", gap: 1 }}>
               {sections.map(s => (
                 <div key={s.id} style={{ background: C.bg1, border: `1px solid ${C.border}` }}>
@@ -1346,20 +1345,29 @@ Q4 2025 — PLANNED
                     style={{
                       width: "100%", background: "none", border: "none", cursor: "pointer",
                       display: "flex", justifyContent: "space-between", alignItems: "center",
-                      padding: "18px 24px", textAlign: "left",
+                      padding: "18px 24px",
                     }}
                   >
-                    <span style={{ fontFamily: mono, fontSize: 12, color: "#fff", letterSpacing: 1, fontWeight: 700 }}>{s.title}</span>
-                    <span style={{ fontFamily: mono, fontSize: 16, color: openSection === s.id ? C.red : C.muted, transition: "transform 0.2s", transform: openSection === s.id ? "rotate(45deg)" : "none" }}>+</span>
+                    <div style={{ textAlign: "left" }}>
+                      {s.titleAr && <div style={{ fontFamily: arabic, fontSize: 13, color: "#fff", fontWeight: 700, direction: "rtl", textAlign: "right", marginBottom: 2 }}>{s.titleAr}</div>}
+                      <div style={{ fontFamily: mono, fontSize: 11, color: C.muted, letterSpacing: 0.5 }}>{s.titleEn}</div>
+                    </div>
+                    <span style={{ fontFamily: mono, fontSize: 16, color: openSection === s.id ? C.red : C.muted, transition: "transform 0.2s", transform: openSection === s.id ? "rotate(45deg)" : "none", flexShrink: 0, marginLeft: 12 }}>+</span>
                   </button>
                   {openSection === s.id && (
                     <div style={{ padding: "0 24px 24px", borderTop: `1px solid ${C.border}` }} className="fade-in">
                       <div style={{ paddingTop: 16 }}>
-                        {s.content.split("\n").map((line, i) => (
-                          line.trim() === "" ? <div key={i} style={{ height: 12 }} /> :
-                          <div key={i} style={{ fontFamily: line.startsWith("—") || line.startsWith("✓") || line.startsWith("◈") ? mono : sans, fontSize: line.startsWith("—") || line.startsWith("✓") || line.startsWith("◈") ? 11 : 13, color: line === line.toUpperCase() && line.length < 40 ? C.orange : C.sub, lineHeight: 1.8, letterSpacing: line === line.toUpperCase() && line.length < 40 ? 1 : 0 }}>
-                            {line}
+                        {s.contentAr && (
+                          <div style={{ direction: "rtl", textAlign: "right", marginBottom: 16 }}>
+                            {s.contentAr.split("\n").map((line, i) => (
+                              line.trim() === "" ? <div key={i} style={{ height: 8 }} /> :
+                              <div key={i} style={{ fontFamily: arabic, fontSize: 13, color: C.sub, lineHeight: 1.9 }}>{line}</div>
+                            ))}
                           </div>
+                        )}
+                        {s.content && s.content.split("\n").map((line, i) => (
+                          line.trim() === "" ? <div key={i} style={{ height: 8 }} /> :
+                          <div key={i} style={{ fontFamily: line.startsWith("—") || line.startsWith("✓") || line.startsWith("◈") ? mono : sans, fontSize: 13, color: C.muted, lineHeight: 1.8 }}>{line}</div>
                         ))}
                       </div>
                     </div>
@@ -1369,44 +1377,70 @@ Q4 2025 — PLANNED
             </div>
           </div>
 
-          {/* Sidebar */}
           <div style={{ position: "sticky", top: 80 }}>
             <Card style={{ marginBottom: 12 }}>
-              <SectionLabel>QUICK ACTIONS</SectionLabel>
+              <SectionLabel>إجراءات سريعة / QUICK ACTIONS</SectionLabel>
               <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                 <button onClick={() => setPage("search")} style={{
-                  background: C.red, border: "none", fontFamily: display, fontSize: 18,
-                  color: "#fff", cursor: "pointer", padding: "12px 20px", letterSpacing: 2, textAlign: "left",
-                }}>SCAN A WALLET →</button>
+                  background: C.red, border: "none", fontFamily: arabic, fontSize: 16,
+                  color: "#fff", cursor: "pointer", padding: "12px 20px", fontWeight: 700, textAlign: "right", direction: "rtl",
+                }}>افحص محفظة ←</button>
                 <button onClick={() => setPage("twitter")} style={{
                   background: C.bg2, border: `1px solid ${C.border}`, fontFamily: display, fontSize: 18,
-                  color: "#fff", cursor: "pointer", padding: "12px 20px", letterSpacing: 2, textAlign: "left",
+                  color: "#fff", cursor: "pointer", padding: "12px 20px", letterSpacing: 1, textAlign: "left",
                 }}>TWITTER SCANNER →</button>
               </div>
             </Card>
 
+            {/* Follow Builder Card */}
+            <a
+              href="https://x.com/Khloud132"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="follow-btn"
+              style={{
+                display: "block", background: "#0d0d0d",
+                border: `2px solid ${C.red}`,
+                padding: "20px", marginBottom: 12, textDecoration: "none",
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill={C.red}>
+                  <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.747l7.73-8.835L1.254 2.25H8.08l4.259 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                </svg>
+                <span style={{ fontFamily: mono, fontSize: 9, color: C.red, letterSpacing: 2 }}>FOLLOW THE BUILDER</span>
+              </div>
+              <div style={{ fontFamily: arabic, fontSize: 16, color: "#fff", fontWeight: 900, direction: "rtl", textAlign: "right", marginBottom: 4 }}>
+                تابع المطور @Khloud132
+              </div>
+              <div style={{ fontFamily: sans, fontSize: 12, color: C.sub }}>
+                For updates, new features & announcements
+              </div>
+              <div style={{ marginTop: 12, background: C.red, padding: "8px 16px", textAlign: "center" }}>
+                <span style={{ fontFamily: arabic, fontSize: 13, color: "#fff", fontWeight: 700 }}>تابع الآن على X</span>
+              </div>
+            </a>
+
             <Card style={{ marginBottom: 12 }}>
-              <SectionLabel>PROJECT STATUS</SectionLabel>
+              <SectionLabel>حالة المشروع / STATUS</SectionLabel>
               {[
-                { label: "Platform",        val: "DEMO",    color: C.orange },
-                { label: "Data",            val: "MOCK",    color: C.orange },
-                { label: "Risk Engine",     val: "v1.0",    color: C.green  },
-                { label: "Twitter Scanner", val: "DEMO",    color: C.orange },
-                { label: "Live Alerts",     val: "Q3 2025", color: C.muted  },
+                { label: "المنصة / Platform",        val: "DEMO",    color: C.orange },
+                { label: "البيانات / Data",            val: "MOCK",    color: C.orange },
+                { label: "محرك المخاطر / Risk Engine", val: "v1.0",    color: C.green  },
+                { label: "التنبيهات المباشرة",         val: "Q3 2025", color: C.muted  },
               ].map(item => (
                 <div key={item.label} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
-                  <span style={{ fontFamily: sans, fontSize: 12, color: C.sub }}>{item.label}</span>
+                  <span style={{ fontFamily: arabic, fontSize: 11, color: C.sub }}>{item.label}</span>
                   <Badge label={item.val} color={item.color} small />
                 </div>
               ))}
             </Card>
 
             <Card>
-              <SectionLabel>DISCLAIMER</SectionLabel>
-              <p style={{ fontFamily: sans, fontSize: 12, color: C.muted, lineHeight: 1.7 }}>
-                WHODEV is currently in demo mode. All scan results use mock data for demonstration purposes. 
-                Do not make financial decisions based on demo output. 
-                Live data pipeline is in development.
+              <SectionLabel>تنبيه / DISCLAIMER</SectionLabel>
+              <p style={{ fontFamily: arabic, fontSize: 12, color: C.muted, lineHeight: 1.9, direction: "rtl", textAlign: "right" }}>
+                WHODEV حالياً في وضع العرض التجريبي. جميع نتائج المسح تستخدم بيانات وهمية لأغراض العرض فقط.
+                لا تتخذ قرارات مالية بناءً على هذا العرض.
               </p>
             </Card>
           </div>
